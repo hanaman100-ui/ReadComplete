@@ -3701,7 +3701,7 @@ function updateTimerUI() {
    START / END
 ═══════════════════════════════════════════════════════════════ */
 function startQuiz() {
-  passages = shuffle(PASSAGES).slice(0, 5);
+  passages = shuffle(PASSAGES).slice(0, 2);
   cur = 0;
   userAnswers = passages.map(p => {
     const blanks = p.passage.filter(t => t.t === 'blank');
