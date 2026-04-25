@@ -448,8 +448,7 @@
   </div>
   <div class="quiz-body" id="quiz-body"></div>
   <div class="quiz-footer">
-    <button class="btn-secondary" id="btn-prev" onclick="goTo(-1)">← 이전</button>
-    <button class="btn-start"     id="btn-next" onclick="goTo(1)" style="flex:2">다음 →</button>
+    <button class="btn-start"     id="btn-next" onclick="goTo(1)" style="flex:1">다음 →</button>
   </div>
 </div>
 
@@ -3631,14 +3630,16 @@ function renderPassage(idx) {
   body.innerHTML = buildPassageHTML(idx);
   document.getElementById('q-counter').textContent = `${idx + 1} / ${passages.length}`;
 
-  // 이전/다음 버튼 상태
-  document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : '';
+  // 다음/제출 버튼 상태
   const btnNext = document.getElementById('btn-next');
   if (idx === passages.length - 1) {
     btnNext.textContent = '제출 →';
   } else {
     btnNext.textContent = '다음 →';
   }
+
+  // 문제마다 타이머 리셋
+  startTimer();
 
   // 첫 빈칸에 포커스
   const firstInput = body.querySelector('input.lbox');
@@ -3649,12 +3650,12 @@ function goTo(dir) {
   // 현재 답 저장
   saveCurrentPassageAnswers();
 
-  if (dir === 1 && cur === passages.length - 1) {
+  if (cur === passages.length - 1) {
     // 마지막에서 다음 → 제출
     endQuiz();
     return;
   }
-  cur = Math.max(0, Math.min(passages.length - 1, cur + dir));
+  cur++;
   renderPassage(cur);
 }
 
@@ -3688,7 +3689,7 @@ function startTimer() {
     if (timerSec <= 30) {
       document.getElementById('q-timer').classList.add('urgent');
     }
-    if (timerSec <= 0) endQuiz();
+    if (timerSec <= 0) goTo(1);
   }, 1000);
 }
 
@@ -3709,7 +3710,6 @@ function startQuiz() {
 
   show('quiz');
   renderPassage(0);
-  startTimer();
 }
 
 function endQuiz() {
