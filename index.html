@@ -381,6 +381,51 @@
       flex-shrink: 0;
     }
     .btn-row { display: flex; gap: 10px; width: 100%; }
+
+    /* ── LANDSCAPE PROMPT ──────────────────────────────────── */
+    #landscape-prompt {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.96);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      color: #fff;
+      padding: 40px;
+    }
+    .lp-icon {
+      font-size: 64px;
+      display: inline-block;
+      animation: lp-rotate 2s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes lp-rotate {
+      0%   { transform: rotate(0deg);  }
+      40%  { transform: rotate(90deg); }
+      60%  { transform: rotate(90deg); }
+      100% { transform: rotate(0deg);  }
+    }
+    .lp-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .lp-sub   { font-size: 14px; color: #9CA3AF; line-height: 1.7; }
+
+    @media (orientation: portrait) and (max-width: 768px) {
+      #landscape-prompt { display: flex; }
+    }
+
+    /* ── PORTRAIT 소형 화면 최적화 ─────────────────────────── */
+    @media (orientation: portrait) and (max-width: 520px) {
+      .passage-card { font-size: 13px; line-height: 2.0; padding: 12px; }
+      .big-timer    { font-size: 36px; }
+      .timer-area   { padding: 10px 16px 0; }
+      .quiz-body    { padding: 10px 14px 0; gap: 8px; }
+      .quiz-footer  { padding: 8px 16px 20px; }
+      .lbox         { width: 22px; height: 28px; font-size: 13px; }
+      input.lbox    { width: 22px; height: 28px; font-size: 13px; }
+    }
   </style>
 </head>
 <body>
@@ -3769,5 +3814,12 @@ function showReview() {
 }
 
 </script>
+
+<!-- ── LANDSCAPE PROMPT ─────────────────────────────────────────────────── -->
+<div id="landscape-prompt">
+  <div class="lp-icon">📱</div>
+  <div class="lp-title">가로 모드로 돌려주세요</div>
+  <div class="lp-sub">문장이 길어서 세로 모드에서는<br>읽기 어려워요</div>
+</div>
 </body>
 </html>
