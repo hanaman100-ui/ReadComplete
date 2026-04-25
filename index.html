@@ -238,10 +238,10 @@
       background: #fff;
       border: 1.5px solid var(--border);
       border-radius: 14px;
-      padding: 18px 16px;
+      padding: 14px 12px;
       width: 100%;
-      line-height: 2.6;
-      font-size: 15.5px;
+      line-height: 2.15;
+      font-size: 14px;
       color: #374151;
       word-break: break-word;
     }
@@ -382,42 +382,8 @@
     }
     .btn-row { display: flex; gap: 10px; width: 100%; }
 
-    /* ── LANDSCAPE PROMPT ──────────────────────────────────── */
-    #landscape-prompt {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(17, 24, 39, 0.96);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 20px;
-      text-align: center;
-      color: #fff;
-      padding: 40px;
-    }
-    .lp-icon {
-      font-size: 64px;
-      display: inline-block;
-      animation: lp-rotate 2s ease-in-out infinite;
-      transform-origin: center;
-    }
-    @keyframes lp-rotate {
-      0%   { transform: rotate(0deg);  }
-      40%  { transform: rotate(90deg); }
-      60%  { transform: rotate(90deg); }
-      100% { transform: rotate(0deg);  }
-    }
-    .lp-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-    .lp-sub   { font-size: 14px; color: #9CA3AF; line-height: 1.7; }
-
-    @media (orientation: portrait) and (max-width: 768px) {
-      #landscape-prompt { display: flex; }
-    }
-
-    /* ── PORTRAIT 소형 화면 최적화 ─────────────────────────── */
-    @media (orientation: portrait) and (max-width: 520px) {
+    /* ── 모바일 세로 화면 최적화 ───────────────────────────── */
+    @media (max-width: 520px) {
       .passage-card { font-size: 13px; line-height: 2.0; padding: 12px; }
       .big-timer    { font-size: 36px; }
       .timer-area   { padding: 10px 16px 0; }
@@ -425,6 +391,21 @@
       .quiz-footer  { padding: 8px 16px 20px; }
       .lbox         { width: 22px; height: 28px; font-size: 13px; }
       input.lbox    { width: 22px; height: 28px; font-size: 13px; }
+    }
+
+    /* ── 키보드 올라왔을 때 (뷰포트 높이 짧아짐) ──────────── */
+    @media (max-height: 500px) {
+      .timer-area   { padding: 4px 16px 0; }
+      .big-timer    { font-size: 22px; letter-spacing: -1px; }
+      .q-counter    { font-size: 13px; }
+      .prog-wrap    { height: 3px; margin-top: 4px; }
+      .quiz-body    { padding: 6px 14px 0; gap: 6px; }
+      .quiz-footer  { padding: 4px 16px 10px; }
+      .passage-card { font-size: 12px; line-height: 1.8; padding: 8px 10px; }
+      .passage-title { font-size: 14px; }
+      .lbox         { width: 20px; height: 25px; font-size: 12px; }
+      input.lbox    { width: 20px; height: 25px; font-size: 12px; }
+      .btn-start    { height: 40px; font-size: 15px; }
     }
   </style>
 </head>
@@ -3814,12 +3795,5 @@ function showReview() {
 }
 
 </script>
-
-<!-- ── LANDSCAPE PROMPT ─────────────────────────────────────────────────── -->
-<div id="landscape-prompt">
-  <div class="lp-icon">📱</div>
-  <div class="lp-title">가로 모드로 돌려주세요</div>
-  <div class="lp-sub">문장이 길어서 세로 모드에서는<br>읽기 어려워요</div>
-</div>
 </body>
 </html>
