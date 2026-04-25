@@ -1,0 +1,3773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#3B82F6" />
+  <title>DET Read and Complete</title>
+  <style>
+    :root {
+      --blue:   #3B82F6;
+      --blue-d: #2563EB;
+      --orange: #F59E0B;
+      --red:    #EF4444;
+      --green:  #10B981;
+      --text:   #111827;
+      --dim:    #9CA3AF;
+      --border: #E5E7EB;
+      --panel:  #F9FAFB;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .screen.hidden { display: none; }
+
+    @media (min-width: 520px) {
+      .screen {
+        max-width: 480px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left:  1px solid var(--border);
+        border-right: 1px solid var(--border);
+      }
+    }
+
+    /* ── HOME ───────────────────────────────────────────────── */
+    #home {
+      overflow-y: auto;
+      justify-content: flex-start;
+      text-align: center;
+      padding: 40px 28px 36px;
+      gap: 12px;
+    }
+    #home h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
+    .sub  { color: var(--dim); font-size: 14px; }
+    .divider { width: 100%; height: 1px; background: var(--border); margin: 2px 0; }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #EFF6FF;
+      color: var(--blue);
+      border: 1.5px solid #BFDBFE;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 14px;
+    }
+
+    .desc {
+      color: #374151;
+      font-size: 15px;
+      line-height: 1.75;
+      text-align: left;
+    }
+    .desc strong { color: var(--blue); }
+
+    .info-grid {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .info-chip {
+      flex: 1;
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 8px;
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .info-chip .ic-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: block;
+    }
+    .info-chip .ic-label {
+      font-size: 11px;
+      color: var(--dim);
+    }
+
+    .strategy-box {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.85;
+      text-align: left;
+      width: 100%;
+    }
+    .strategy-box .sb-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .strategy-box ul {
+      padding-left: 16px;
+    }
+    .strategy-box ul li {
+      margin-bottom: 4px;
+    }
+    .strategy-box ul li:last-child { margin-bottom: 0; }
+
+    .mistake-box {
+      background: #FFF7ED;
+      border: 1.5px solid #FED7AA;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #92400E;
+      line-height: 1.85;
+      text-align: left;
+      width: 100%;
+    }
+    .mistake-box .mb-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #D97706;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .mistake-box ul {
+      padding-left: 16px;
+    }
+    .mistake-box ul li { margin-bottom: 4px; }
+    .mistake-box ul li:last-child { margin-bottom: 0; }
+
+    .btn-start {
+      width: 100%;
+      height: 54px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+    }
+    .btn-start:active { background: var(--blue-d); }
+
+    /* ── SHARED TIMER ───────────────────────────────────────── */
+    .timer-area {
+      width: 100%;
+      padding: 20px 24px 0;
+      flex-shrink: 0;
+    }
+    .timer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .big-timer {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+    .big-timer.urgent { color: var(--red); }
+    .q-counter {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dim);
+    }
+    .prog-wrap {
+      width: 100%;
+      height: 5px;
+      background: var(--border);
+      margin-top: 12px;
+      flex-shrink: 0;
+    }
+    .prog-bar {
+      height: 100%;
+      background: var(--orange);
+      transition: width 0.9s linear, background 0.3s;
+    }
+
+    /* ── QUIZ ───────────────────────────────────────────────── */
+    #quiz { justify-content: flex-start; }
+
+    .quiz-body {
+      flex: 1;
+      width: 100%;
+      padding: 16px 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .passage-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      padding-bottom: 2px;
+    }
+
+    /* 지문 영역 - 단어들이 인라인으로 흐름 */
+    .passage-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 16px;
+      width: 100%;
+      line-height: 2.6;
+      font-size: 15.5px;
+      color: #374151;
+      word-break: break-word;
+    }
+
+    /* 빈칸 단어 컨테이너 */
+    .word-box {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      gap: 0px;
+      /* 줄 바꿈 방지 - 단어 단위로 묶음 */
+      white-space: nowrap;
+    }
+
+    /* 글자 박스 공통 */
+    .lbox {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 32px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+
+    /* 힌트(회색 배경)로 보이는 글자 */
+    .lbox.hint {
+      background: #F3F4F6;
+      color: var(--text);
+      border-color: #D1D5DB;
+    }
+
+    /* 입력 박스 */
+    input.lbox {
+      background: #fff;
+      color: var(--text);
+      cursor: text;
+      outline: none;
+      padding: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input.lbox:focus {
+      border-color: var(--blue);
+      background: #EFF6FF;
+    }
+    .lbox.correct {
+      background: #D1FAE5 !important;
+      color: #065F46 !important;
+      border-color: #6EE7B7 !important;
+    }
+    .lbox.incorrect {
+      background: #FEE2E2 !important;
+      color: #991B1B !important;
+      border-color: #FCA5A5 !important;
+    }
+
+    .quiz-footer {
+      width: 100%;
+      padding: 12px 20px 28px;
+      flex-shrink: 0;
+      display: flex;
+      gap: 10px;
+    }
+    .btn-secondary {
+      flex: 1;
+      height: 48px;
+      background: var(--panel);
+      color: #374151;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-secondary:active { background: #F3F4F6; }
+
+    /* ── REVIEW ─────────────────────────────────────────────── */
+    #review { justify-content: flex-start; }
+
+    .review-header {
+      width: 100%;
+      padding: 28px 24px 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .review-title { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .review-pct   { font-size: 44px; font-weight: 800; color: var(--blue); letter-spacing: -1px; }
+    .review-score { font-size: 16px; color: var(--dim); margin-top: 4px; }
+
+    .review-list {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      padding: 12px 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .rv-item {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .rv-item.rv-ok  { border-color: #6EE7B7; background: #F0FDF4; }
+    .rv-item.rv-bad { border-color: #FCA5A5; background: #FFF5F5; }
+
+    .rv-passage-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .rv-sentence {
+      font-size: 14px;
+      line-height: 2.2;
+      color: #374151;
+    }
+    .rv-word-correct { color: #065F46; font-weight: 700; }
+    .rv-word-wrong   { color: #991B1B; font-weight: 700; }
+    .rv-word-def     { font-size: 11px; color: #6B7280; margin-left: 2px; }
+
+    .review-footer {
+      width: 100%;
+      padding: 12px 20px 28px;
+      flex-shrink: 0;
+    }
+    .btn-row { display: flex; gap: 10px; width: 100%; }
+  </style>
+</head>
+<body>
+
+<!-- ── HOME ──────────────────────────────────────────────────────────────── -->
+<div id="home" class="screen">
+  <p style="font-size:1.05rem; font-weight:700; color:#E11D48; text-align:center; margin-bottom:4px;">예은아, DET 합격까지 화이팅! 💕</p>
+  <h1>Read &amp; Complete</h1>
+  <p class="sub">Duolingo English Test · Literacy · Comprehension</p>
+
+  <div class="divider"></div>
+
+  <span class="type-badge">📖 유형 3 — Read and Complete</span>
+
+  <p class="desc">
+    문단 속 단어의 <strong>빈 글자</strong>를 채워보세요.<br>
+    회색 박스는 힌트, 흰 박스에 한 글자씩 입력합니다.
+  </p>
+
+  <div class="info-grid">
+    <div class="info-chip">
+      <span class="ic-val">3분</span>
+      <span class="ic-label">제한 시간</span>
+    </div>
+    <div class="info-chip">
+      <span class="ic-val">5문장</span>
+      <span class="ic-label">1문장씩 출제</span>
+    </div>
+    <div class="info-chip">
+      <span class="ic-val">3~6</span>
+      <span class="ic-label">출제 문제 수</span>
+    </div>
+  </div>
+
+  <div class="strategy-box">
+    <div class="sb-title">💡 핵심 전략</div>
+    <ul>
+      <li>첫 문장 + 끝 문장 먼저 이해 → 전체 흐름 파악 후 쉬운 빈칸부터 풀이</li>
+      <li>마지막 10초: 못 푼 빈칸은 말이 되는 단어 / 자주 쓰이는 모음(a, e)으로 찍기</li>
+      <li>채우지 않은 빈칸 = 틀린 빈칸이므로 반드시 무언가 입력</li>
+    </ul>
+  </div>
+
+  <div class="mistake-box">
+    <div class="mb-title">⚠️ 흔한 실수</div>
+    <ul>
+      <li>앞뒤 문장에 똑같은 단어가 힌트로 있는데 놓치기</li>
+      <li>검토 없이 제출 (스펠링·시제 오류)</li>
+    </ul>
+  </div>
+
+  <button class="btn-start" onclick="startQuiz()">시  작</button>
+</div>
+
+<!-- ── QUIZ ──────────────────────────────────────────────────────────────── -->
+<div id="quiz" class="screen hidden">
+  <div class="timer-area">
+    <div class="timer-row">
+      <div class="big-timer" id="q-timer">3:00</div>
+      <div class="q-counter"  id="q-counter">1 / 5</div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-bar" id="q-bar" style="width:100%"></div>
+  </div>
+  <div class="quiz-body" id="quiz-body"></div>
+  <div class="quiz-footer">
+    <button class="btn-secondary" id="btn-prev" onclick="goTo(-1)">← 이전</button>
+    <button class="btn-start"     id="btn-next" onclick="goTo(1)" style="flex:2">다음 →</button>
+  </div>
+</div>
+
+<!-- ── REVIEW ────────────────────────────────────────────────────────────── -->
+<div id="review" class="screen hidden">
+  <div class="review-header">
+    <div class="review-title" id="rv-emoji">🎉 결과</div>
+    <div class="review-pct"   id="rv-pct">0%</div>
+    <div class="review-score" id="rv-score">0 / 0</div>
+  </div>
+  <div class="divider" style="width:calc(100% - 32px); margin: 0 16px;"></div>
+  <div class="review-list" id="rv-list"></div>
+  <div class="review-footer">
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="show('home')">홈으로</button>
+      <button class="btn-secondary" onclick="startQuiz()">다시 풀기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/*
+  데이터 형식:
+  {
+    title: "지문 제목",
+    passage: [
+      // 각 항목은 단어 토큰
+      // type:"text"  → 일반 텍스트 (공백 포함)
+      // type:"blank" → 빈칸 단어
+      //   word: 완성된 단어
+      //   hint: 보여줄 글자 인덱스 배열 (0-based)
+      //         나머지는 입력 박스
+    ]
+  }
+
+  hint 인덱스 예: word="scientists", hint:[0,1,2,3]
+    → "s","c","i","e" 는 회색 힌트, "ntists" 는 빈칸
+*/
+
+const PASSAGES = [
+  // ── Passage 1: Admiration for Grandparents ───────────────────────────────
+  {
+    title: "Admiration for Grandparents",
+    passage: [
+      {t:"text", v:"I love my grandparents. They "},
+      {t:"blank", word:"are", hint:[0], def:"~이다"},
+      {t:"text", v:" very "},
+      {t:"blank", word:"kind", hint:[0,1], def:"친절한"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"understanding", hint:[0,1,2,3,4,5], def:"이해심 있는"},
+      {t:"text", v:", "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" since "},
+      {t:"blank", word:"they", hint:[0,1], def:"그들은"},
+      {t:"text", v:" have "},
+      {t:"blank", word:"seen", hint:[0,1], def:"본 적 있는"},
+      {t:"text", v:" a lot of "},
+      {t:"blank", word:"things", hint:[0,1,2], def:"것들"},
+      {t:"text", v:" they "},
+      {t:"blank", word:"know", hint:[0,1], def:"알다"},
+      {t:"text", v:" a lot about "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" world. Also, since they are retired from work, they have plenty of free time to spend with me."},
+    ]
+  },
+
+  // ── Passage 2: Kimchi and Nanoplastics ──────────────────────────────────
+  {
+    title: "Kimchi and Nanoplastics",
+    passage: [
+      {t:"text", v:"Scientists have "},
+      {t:"blank", word:"written", hint:[0,1,2,3], def:"써왔다"},
+      {t:"text", v:" extensively about the "},
+      {t:"blank", word:"prevalence", hint:[0,1,2], def:"만연"},
+      {t:"text", v:" of microplastics and nanoplastics in the "},
+      {t:"blank", word:"environment", hint:[0,1,2,3], def:"환경"},
+      {t:"text", v:" and in our bodies. A new study has found that "},
+      {t:"blank", word:"bacteria", hint:[0,1,2,3], def:"박테리아"},
+      {t:"text", v:" from the fermented Korean dish kimchi can help to "},
+      {t:"blank", word:"expel", hint:[0,1], def:"배출하다"},
+      {t:"text", v:" nanoplastics from the body. The plastic does not pass through the "},
+      {t:"blank", word:"intestinal", hint:[0,1,2,3], def:"장의"},
+      {t:"text", v:" lining and "},
+      {t:"blank", word:"accumulate", hint:[0,1,2,3], def:"축적하다"},
+      {t:"text", v:" in organs like the brain, heart, kidneys, and liver."},
+    ]
+  },
+
+  // ── Passage 3: Japan Hot Days ───────────────────────────────────────────
+  {
+    title: "Japan's New Word for Extreme Heat",
+    passage: [
+      {t:"text", v:"Climate change is having an "},
+      {t:"blank", word:"unforeseen", hint:[0,1,2], def:"예상치 못한"},
+      {t:"text", v:" consequence on language — the "},
+      {t:"blank", word:"creation", hint:[0,1,2], def:"창조"},
+      {t:"text", v:" of new words. The Japan "},
+      {t:"blank", word:"Meteorological", hint:[0,1,2,3,4], def:"기상의"},
+      {t:"text", v:" Agency has introduced a new "},
+      {t:"blank", word:"neologism", hint:[0,1,2], def:"신조어"},
+      {t:"text", v:' — the word "kokushobi," which literally means "cruelly hot day". The JMA '},
+      {t:"blank", word:"conducted", hint:[0,1,2,3], def:"실시했다"},
+      {t:"text", v:" an online poll. The word kokushobi "},
+      {t:"blank", word:"garnered", hint:[0,1,2,3], def:"얻었다"},
+      {t:"text", v:" nearly 203,000 votes."},
+    ]
+  },
+
+  // ── Passage 4: Air Traffic Controllers ──────────────────────────────────
+  {
+    title: "US Wants Gamers to Become Air Traffic Controllers",
+    passage: [
+      {t:"text", v:"The FAA has "},
+      {t:"blank", word:"launched", hint:[0,1,2,3], def:"시작했다"},
+      {t:"text", v:" a "},
+      {t:"blank", word:"recruitment", hint:[0,1,2,3], def:"채용"},
+      {t:"text", v:" campaign aimed at gamers. There is a "},
+      {t:"blank", word:"shortage", hint:[0,1,2,3], def:"부족"},
+      {t:"text", v:" of workers in the sector. The union welcomes "},
+      {t:"blank", word:"innovative", hint:[0,1,2,3], def:"혁신적인"},
+      {t:"text", v:" approaches, so long as all "},
+      {t:"blank", word:"pathways", hint:[0,1,2,3], def:"경로들"},
+      {t:"text", v:" maintain the "},
+      {t:"blank", word:"rigorous", hint:[0,1,2,3], def:"엄격한"},
+      {t:"text", v:" standards required of this safety-critical "},
+      {t:"blank", word:"profession", hint:[0,1,2,3], def:"직업"},
+      {t:"text", v:"."},
+    ]
+  },
+
+  // ── Passage 5: Nanoplastics (paragraph 2) ───────────────────────────────
+  {
+    title: "Nanoplastics in Our Bodies",
+    passage: [
+      {t:"text", v:"Nanoplastics are of increasing "},
+      {t:"blank", word:"concern", hint:[0,1,2,3], def:"우려"},
+      {t:"text", v:" to the medical "},
+      {t:"blank", word:"community", hint:[0,1,2,3], def:"집단"},
+      {t:"text", v:". There are many unknown side "},
+      {t:"blank", word:"effects", hint:[0,1,2,3], def:"부작용"},
+      {t:"text", v:" of these tiny "},
+      {t:"blank", word:"particles", hint:[0,1,2,3], def:"입자들"},
+      {t:"text", v:" being in our organs. Current "},
+      {t:"blank", word:"estimates", hint:[0,1,2,3], def:"추정치"},
+      {t:"text", v:" suggest people take in up to 120,000 microscopic "},
+      {t:"blank", word:"fragments", hint:[0,1,2,3], def:"조각들"},
+      {t:"text", v:" every year. The Korean scientists believe their research might "},
+      {t:"blank", word:"alleviate", hint:[0,1,2,3], def:"완화하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"accumulation", hint:[0,1,2,3,4], def:"축적"},
+      {t:"text", v:" of plastic in our bodies."},
+    ]
+  },
+
+  // ── Passage 6: New Evening Hours at Downtown Farmers Market ─────────────
+  {
+    title: "New Evening Hours at Downtown Farmers Market",
+    passage: [
+      {t:"text", v:"The downtown farmers market has introduced new evening hours to better serve working families. "},
+      {t:"blank", word:"Many", hint:[0,1], def:"많은"},
+      {t:"text", v:" vendors "},
+      {t:"blank", word:"now", hint:[0], def:"지금"},
+      {t:"text", v:" stay "},
+      {t:"blank", word:"open", hint:[0,1], def:"열다"},
+      {t:"text", v:" until "},
+      {t:"blank", word:"eight", hint:[0,1], def:"여덟"},
+      {t:"text", v:" o'clock "},
+      {t:"blank", word:"on", hint:[0], def:"~에"},
+      {t:"text", v:" Thursdays "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" Fridays. "},
+      {t:"blank", word:"This", hint:[0,1], def:"이것"},
+      {t:"text", v:" change "},
+      {t:"blank", word:"allows", hint:[0,1,2], def:"허용하다"},
+      {t:"text", v:" people "},
+      {t:"blank", word:"who", hint:[0], def:"~하는"},
+      {t:"text", v:" work "},
+      {t:"blank", word:"during", hint:[0,1,2], def:"~동안"},
+      {t:"text", v:" regular "},
+      {t:"blank", word:"market", hint:[0,1,2], def:"시장"},
+      {t:"text", v:" hours "},
+      {t:"blank", word:"to", hint:[0], def:"~하기 위해"},
+      {t:"text", v:" still "},
+      {t:"blank", word:"buy", hint:[0], def:"사다"},
+      {t:"text", v:" fresh "},
+      {t:"blank", word:"produce", hint:[0,1,2], def:"농산물"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"local", hint:[0,1], def:"지역의"},
+      {t:"text", v:" goods. The market manager says the evening hours have been very popular with customers who couldn't visit before."},
+    ]
+  },
+
+  // ── Passage 7: Emma's Saturday Laundry Routine ───────────────────────────
+  {
+    title: "Emma's Saturday Laundry Routine",
+    passage: [
+      {t:"text", v:"Emma loves helping her mother with the laundry every Saturday morning. "},
+      {t:"blank", word:"This", hint:[0,1], def:"이것"},
+      {t:"text", v:" is "},
+      {t:"blank", word:"one", hint:[0], def:"하나"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"her", hint:[0], def:"그녀의"},
+      {t:"text", v:" favorite activities "},
+      {t:"blank", word:"because", hint:[0,1,2], def:"왜냐하면"},
+      {t:"text", v:" she "},
+      {t:"blank", word:"gets", hint:[0,1], def:"~하게 되다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"sort", hint:[0,1], def:"분류하다"},
+      {t:"text", v:" clothes "},
+      {t:"blank", word:"by", hint:[0], def:"~에 따라"},
+      {t:"text", v:" different colors. She "},
+      {t:"blank", word:"puts", hint:[0,1], def:"놓다"},
+      {t:"text", v:" all "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" white shirts "},
+      {t:"blank", word:"in", hint:[0], def:"~안에"},
+      {t:"text", v:" one pile "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"dark", hint:[0,1], def:"어두운"},
+      {t:"text", v:" jeans "},
+      {t:"blank", word:"in", hint:[0], def:"~안에"},
+      {t:"text", v:" another. Her mother always smiles when Emma separates the clothes correctly."},
+    ]
+  },
+
+  // ── Passage 8: Inclusive Museum Exhibits for the Blind ───────────────────
+  {
+    title: "Inclusive Museum Exhibits for the Blind",
+    passage: [
+      {t:"text", v:"The city museum recently opened new exhibits designed for visitors who cannot see. "},
+      {t:"blank", word:"The", hint:[0], def:"그"},
+      {t:"text", v:" museum "},
+      {t:"blank", word:"staff", hint:[0,1], def:"직원"},
+      {t:"text", v:" worked "},
+      {t:"blank", word:"with", hint:[0,1], def:"~와 함께"},
+      {t:"text", v:" local "},
+      {t:"blank", word:"blind", hint:[0,1], def:"시각장애의"},
+      {t:"text", v:" organizations "},
+      {t:"blank", word:"to", hint:[0], def:"~하기 위해"},
+      {t:"text", v:" create displays "},
+      {t:"blank", word:"that", hint:[0,1], def:"~하는"},
+      {t:"text", v:" people "},
+      {t:"blank", word:"can", hint:[0], def:"할 수 있다"},
+      {t:"text", v:" touch "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" explore "},
+      {t:"blank", word:"with", hint:[0,1], def:"~을 사용하여"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"hands", hint:[0,1], def:"손"},
+      {t:"text", v:". Each "},
+      {t:"blank", word:"exhibit", hint:[0,1,2], def:"전시물"},
+      {t:"text", v:" includes detailed audio "},
+      {t:"blank", word:"descriptions", hint:[0,1,2,3,4,5], def:"설명들"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"textual", hint:[0,1,2], def:"문자로 된"},
+      {t:"text", v:" information "},
+      {t:"blank", word:"in", hint:[0], def:"~로"},
+      {t:"text", v:" Braille. Visitors can feel replica artifacts and listen to stories about the city's history."},
+    ]
+  },
+
+  // ── Passage 9: A Picnic with Bold Squirrels ──────────────────────────────
+  {
+    title: "A Picnic with Bold Squirrels",
+    passage: [
+      {t:"text", v:"The Smith family decided to have a picnic in the park on Saturday afternoon. They "},
+      {t:"blank", word:"spread", hint:[0,1,2], def:"펼치다"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"blanket", hint:[0,1,2], def:"담요"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" grass "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" unpacked "},
+      {t:"blank", word:"their", hint:[0,1], def:"그들의"},
+      {t:"text", v:" sandwiches "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" fruit. Soon, a group "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" curious "},
+      {t:"blank", word:"squirrels", hint:[0,1,2,3], def:"다람쥐들"},
+      {t:"text", v:" noticed "},
+      {t:"blank", word:"their", hint:[0,1], def:"그들의"},
+      {t:"text", v:" food "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" began "},
+      {t:"blank", word:"to", hint:[0], def:"~하러"},
+      {t:"text", v:" approach. The squirrels "},
+      {t:"blank", word:"were", hint:[0,1], def:"~이었다"},
+      {t:"text", v:" very "},
+      {t:"blank", word:"bold", hint:[0,1], def:"대담한"},
+      {t:"text", v:" and started "},
+      {t:"blank", word:"grabbing", hint:[0,1,2,3], def:"잡아채다"},
+      {t:"text", v:" pieces "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" bread "},
+      {t:"blank", word:"right", hint:[0,1], def:"바로"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"their", hint:[0,1], def:"그들의"},
+      {t:"text", v:" hands. The children laughed as the small animals climbed all over their picnic blanket."},
+    ]
+  },
+
+  // ── Passage 10: Choosing the Perfect Pet at the Shelter ─────────────────
+  {
+    title: "Choosing the Perfect Pet at the Shelter",
+    passage: [
+      {t:"text", v:"Sarah and Mark had been thinking about getting a pet for months. They "},
+      {t:"blank", word:"decided", hint:[0,1,2], def:"결심했다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"visit", hint:[0,1], def:"방문하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"local", hint:[0,1], def:"지역의"},
+      {t:"text", v:" animal "},
+      {t:"blank", word:"shelter", hint:[0,1,2], def:"보호소"},
+      {t:"text", v:" on Saturday "},
+      {t:"blank", word:"morning", hint:[0,1,2], def:"아침"},
+      {t:"text", v:". At "},
+      {t:"blank", word:"first", hint:[0,1], def:"처음에"},
+      {t:"text", v:" they "},
+      {t:"blank", word:"were", hint:[0,1], def:"~이었다"},
+      {t:"text", v:" nervous, "},
+      {t:"blank", word:"but", hint:[0], def:"하지만"},
+      {t:"text", v:" when "},
+      {t:"blank", word:"they", hint:[0,1], def:"그들은"},
+      {t:"text", v:" saw a small "},
+      {t:"blank", word:"brown", hint:[0,1], def:"갈색의"},
+      {t:"text", v:" dog "},
+      {t:"blank", word:"wagging", hint:[0,1,2], def:"흔들며"},
+      {t:"text", v:" its "},
+      {t:"blank", word:"tail", hint:[0,1], def:"꼬리"},
+      {t:"text", v:", they "},
+      {t:"blank", word:"knew", hint:[0,1], def:"알았다"},
+      {t:"text", v:" immediately "},
+      {t:"blank", word:"that", hint:[0,1], def:"~임을"},
+      {t:"text", v:" this "},
+      {t:"blank", word:"was", hint:[0], def:"~이었다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"right", hint:[0,1], def:"올바른"},
+      {t:"text", v:" pet "},
+      {t:"blank", word:"for", hint:[0], def:"~을 위해"},
+      {t:"text", v:" them. The shelter staff explained that the dog had been rescued from difficult conditions but was now healthy and ready for a loving home."},
+    ]
+  },
+
+  // ── Passage 11: Free Tax Preparation Services ────────────────────────────
+  {
+    title: "Free Tax Preparation Services at the Community Center",
+    passage: [
+      {t:"text", v:"The community center offers free tax preparation services every spring. "},
+      {t:"blank", word:"Many", hint:[0,1], def:"많은"},
+      {t:"text", v:" volunteers "},
+      {t:"blank", word:"come", hint:[0,1], def:"오다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"help", hint:[0,1], def:"돕다"},
+      {t:"text", v:" residents "},
+      {t:"blank", word:"with", hint:[0,1], def:"~와 함께"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"tax", hint:[0], def:"세금"},
+      {t:"text", v:" returns "},
+      {t:"blank", word:"during", hint:[0,1,2], def:"~동안"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"busy", hint:[0,1], def:"바쁜"},
+      {t:"text", v:" season. You "},
+      {t:"blank", word:"can", hint:[0], def:"할 수 있다"},
+      {t:"text", v:" bring "},
+      {t:"blank", word:"your", hint:[0,1], def:"당신의"},
+      {t:"text", v:" documents "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" get "},
+      {t:"blank", word:"help", hint:[0,1], def:"도움"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"trained", hint:[0,1,2], def:"훈련된"},
+      {t:"text", v:" professionals "},
+      {t:"blank", word:"who", hint:[0], def:"~하는"},
+      {t:"text", v:" know "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" tax "},
+      {t:"blank", word:"code", hint:[0,1], def:"규정"},
+      {t:"text", v:". The service is available to anyone in the neighborhood who needs assistance with their paperwork."},
+    ]
+  },
+
+  // ── Passage 12: Learning Basic Car Maintenance ───────────────────────────
+  {
+    title: "Learning Basic Car Maintenance with Tom",
+    passage: [
+      {t:"text", v:"Jake and Maria decided to learn basic car maintenance from Tom, an experienced mechanic. He showed "},
+      {t:"blank", word:"them", hint:[0,1], def:"그들에게"},
+      {t:"text", v:" how "},
+      {t:"blank", word:"to", hint:[0], def:"~하기 위해"},
+      {t:"text", v:" check "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" oil "},
+      {t:"blank", word:"level", hint:[0,1], def:"수준"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"replace", hint:[0,1,2], def:"교체하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"fluid", hint:[0,1], def:"액체"},
+      {t:"text", v:". Tom "},
+      {t:"blank", word:"explained", hint:[0,1,2,3], def:"설명했다"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"regular", hint:[0,1,2], def:"정기적인"},
+      {t:"text", v:" maintenance "},
+      {t:"blank", word:"can", hint:[0], def:"~할 수 있다"},
+      {t:"text", v:" save "},
+      {t:"blank", word:"them", hint:[0,1], def:"그들에게"},
+      {t:"text", v:" hundreds "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" dollars "},
+      {t:"blank", word:"in", hint:[0], def:"~에서"},
+      {t:"text", v:" repair "},
+      {t:"blank", word:"costs", hint:[0,1], def:"비용"},
+      {t:"text", v:". He taught them to inspect the tires and change a flat tire safely. By the end of the day, both friends felt confident about handling simple car problems."},
+    ]
+  },
+
+  // ── Passage 13: Using Art to Help Children Express Emotions ──────────────
+  {
+    title: "Using Art to Help Children Express Emotions",
+    passage: [
+      {t:"text", v:"Dr. Martinez works with children who have trouble expressing their feelings. She "},
+      {t:"blank", word:"uses", hint:[0,1], def:"사용한다"},
+      {t:"text", v:" art "},
+      {t:"blank", word:"activities", hint:[0,1,2,3,4], def:"활동들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"help", hint:[0,1], def:"돕다"},
+      {t:"text", v:" them "},
+      {t:"blank", word:"process", hint:[0,1,2], def:"처리하다"},
+      {t:"text", v:" difficult "},
+      {t:"blank", word:"emotions", hint:[0,1,2,3], def:"감정들"},
+      {t:"text", v:". When "},
+      {t:"blank", word:"children", hint:[0,1,2,3], def:"아이들"},
+      {t:"text", v:" draw "},
+      {t:"blank", word:"or", hint:[0], def:"또는"},
+      {t:"text", v:" paint, "},
+      {t:"blank", word:"they", hint:[0,1], def:"그들"},
+      {t:"text", v:" can "},
+      {t:"blank", word:"show", hint:[0,1], def:"표현하다"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"feelings", hint:[0,1,2,3], def:"감정들"},
+      {t:"text", v:" without "},
+      {t:"blank", word:"using", hint:[0,1], def:"사용하여"},
+      {t:"text", v:" words. "},
+      {t:"blank", word:"The", hint:[0], def:"그"},
+      {t:"text", v:" art "},
+      {t:"blank", word:"gives", hint:[0,1], def:"준다"},
+      {t:"text", v:" them a "},
+      {t:"blank", word:"safe", hint:[0,1], def:"안전한"},
+      {t:"text", v:" way "},
+      {t:"blank", word:"to", hint:[0], def:"~하기 위해"},
+      {t:"text", v:" explore "},
+      {t:"blank", word:"what", hint:[0,1], def:"무엇을"},
+      {t:"text", v:" they "},
+      {t:"blank", word:"are", hint:[0], def:"~이다"},
+      {t:"text", v:" thinking "},
+      {t:"blank", word:"about", hint:[0,1], def:"~에 대해"},
+      {t:"text", v:". This helps children understand their emotions better and learn healthy ways to cope with stress."},
+    ]
+  },
+
+  // ── Passage 14: Sharing Halloween Candy Fairly ───────────────────────────
+  {
+    title: "Sharing Halloween Candy Fairly",
+    passage: [
+      {t:"text", v:"Emma and Sarah collected a lot of candy on Halloween night. They "},
+      {t:"blank", word:"decided", hint:[0,1,2], def:"결정했다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"share", hint:[0,1], def:"나누다"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"candy", hint:[0,1], def:"사탕"},
+      {t:"text", v:" fairly "},
+      {t:"blank", word:"between", hint:[0,1,2], def:"~사이에"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"two", hint:[0], def:"둘"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"them", hint:[0,1], def:"그들"},
+      {t:"text", v:". Emma "},
+      {t:"blank", word:"counted", hint:[0,1,2], def:"세었다"},
+      {t:"text", v:" all "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" pieces "},
+      {t:"blank", word:"first", hint:[0,1], def:"먼저"},
+      {t:"text", v:" while Sarah "},
+      {t:"blank", word:"sorted", hint:[0,1,2], def:"분류했다"},
+      {t:"text", v:" them "},
+      {t:"blank", word:"into", hint:[0,1], def:"~안으로"},
+      {t:"text", v:" different groups. They "},
+      {t:"blank", word:"put", hint:[0], def:"놓다"},
+      {t:"text", v:" all "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" chocolate "},
+      {t:"blank", word:"bars", hint:[0,1], def:"막대"},
+      {t:"text", v:" in "},
+      {t:"blank", word:"one", hint:[0], def:"하나의"},
+      {t:"text", v:" pile, "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" all "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" gummy candies "},
+      {t:"blank", word:"in", hint:[0], def:"~에"},
+      {t:"text", v:" another. At the end, both sisters were happy with their equal shares."},
+    ]
+  },
+
+  // ── Passage 15: The Benefits of Green Roofs ──────────────────────────────
+  {
+    title: "The Benefits of Green Roofs in Urban Planning",
+    passage: [
+      {t:"text", v:"Sarah works as a city planner and often explains how green roofs help communities. Green "},
+      {t:"blank", word:"roofs", hint:[0,1], def:"지붕들"},
+      {t:"text", v:" are "},
+      {t:"blank", word:"covered", hint:[0,1,2], def:"덮인"},
+      {t:"text", v:" with "},
+      {t:"blank", word:"plants", hint:[0,1,2], def:"식물들"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"absorb", hint:[0,1,2], def:"흡수하다"},
+      {t:"text", v:" rainwater "},
+      {t:"blank", word:"before", hint:[0,1,2], def:"~전에"},
+      {t:"text", v:" it "},
+      {t:"blank", word:"runs", hint:[0,1], def:"흘러가다"},
+      {t:"text", v:" off "},
+      {t:"blank", word:"into", hint:[0,1], def:"~속으로"},
+      {t:"text", v:" storm "},
+      {t:"blank", word:"drains", hint:[0,1,2], def:"배수구"},
+      {t:"text", v:". When it "},
+      {t:"blank", word:"rains", hint:[0,1], def:"비가 오다"},
+      {t:"text", v:", the "},
+      {t:"blank", word:"plants", hint:[0,1,2], def:"식물들"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" roof "},
+      {t:"blank", word:"hold", hint:[0,1], def:"담다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"water", hint:[0,1], def:"물"},
+      {t:"text", v:" instead "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" letting "},
+      {t:"blank", word:"it", hint:[0], def:"그것"},
+      {t:"text", v:" flow "},
+      {t:"blank", word:"directly", hint:[0,1,2,3], def:"직접적으로"},
+      {t:"text", v:" into "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" streets. This helps reduce flooding in the city during heavy storms."},
+    ]
+  },
+
+  // ── Passage 16: Navigating the Office Coffee Machine ────────────────────
+  {
+    title: "Navigating the Office Coffee Machine",
+    passage: [
+      {t:"text", v:"Sarah's first day at the new office was going well until she encountered the coffee machine. It "},
+      {t:"blank", word:"was", hint:[0], def:"~이었다"},
+      {t:"text", v:" a complex contraption "},
+      {t:"blank", word:"with", hint:[0,1], def:"~와 함께"},
+      {t:"text", v:" multiple buttons "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" settings. "},
+      {t:"blank", word:"She", hint:[0], def:"그녀"},
+      {t:"text", v:" pressed "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" first button, "},
+      {t:"blank", word:"but", hint:[0], def:"하지만"},
+      {t:"text", v:" nothing happened. A colleague noticed "},
+      {t:"blank", word:"her", hint:[0], def:"그녀의"},
+      {t:"text", v:" confusion "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" offered "},
+      {t:"blank", word:"to", hint:[0], def:"~하기 위해"},
+      {t:"text", v:' help. "You '},
+      {t:"blank", word:"have", hint:[0,1], def:"~해야 하다"},
+      {t:"text", v:" to scan "},
+      {t:"blank", word:"your", hint:[0,1], def:"당신의"},
+      {t:"text", v:" ID card first, "},
+      {t:"blank", word:"then", hint:[0,1], def:"그런 다음"},
+      {t:"text", v:" select "},
+      {t:"blank", word:"your", hint:[0,1], def:"당신의"},
+      {t:"text", v:' drink," '},
+      {t:"blank", word:"he", hint:[0], def:"그"},
+      {t:"text", v:" explained kindly. Sarah smiled and thanked him for showing her the ropes."},
+    ]
+  },
+
+  // ── Passage 17: William Herschel's Star Life Cycle Theory ───────────────
+  {
+    title: "William Herschel's Star Life Cycle Theory",
+    passage: [
+      {t:"text", v:"In 1785, William Herschel theorized about the life cycle of stars, in which a star would exist for a limited amount of time before exploding in a dramatic event called a supernova. He "},
+      {t:"blank", word:"also", hint:[0,1], def:"또한"},
+      {t:"text", v:" suggested "},
+      {t:"blank", word:"that", hint:[0,1], def:"~라는 것을"},
+      {t:"text", v:" afterwards "},
+      {t:"blank", word:"it", hint:[0], def:"그것"},
+      {t:"text", v:" would "},
+      {t:"blank", word:"collapse", hint:[0,1,2,3], def:"붕괴하다"},
+      {t:"text", v:" into a "},
+      {t:"blank", word:"ball", hint:[0,1], def:"구체"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"gas", hint:[0], def:"기체"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"which", hint:[0,1], def:"(관계대명사)"},
+      {t:"text", v:" new "},
+      {t:"blank", word:"stars", hint:[0,1], def:"별들"},
+      {t:"text", v:" would "},
+      {t:"blank", word:"emerge", hint:[0,1,2], def:"나타나다"},
+      {t:"text", v:". Herschel's theory was confirmed with the discovery of nebulae and the recognition that stars formed from within these interstellar dust clouds."},
+    ]
+  },
+
+  // ── Passage 18: Lost in the Corn Maze ───────────────────────────────────
+  {
+    title: "Lost in the Corn Maze",
+    passage: [
+      {t:"text", v:"Last Saturday, our family decided to visit a corn maze for the first time. We "},
+      {t:"blank", word:"thought", hint:[0,1,2], def:"생각했다"},
+      {t:"text", v:" it "},
+      {t:"blank", word:"would", hint:[0,1], def:"~할 것이다"},
+      {t:"text", v:" be "},
+      {t:"blank", word:"easy", hint:[0,1], def:"쉬운"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"find", hint:[0,1], def:"찾다"},
+      {t:"text", v:" our "},
+      {t:"blank", word:"way", hint:[0], def:"길"},
+      {t:"text", v:" out, "},
+      {t:"blank", word:"but", hint:[0], def:"하지만"},
+      {t:"text", v:" we "},
+      {t:"blank", word:"were", hint:[0,1], def:"~이었다"},
+      {t:"text", v:" completely "},
+      {t:"blank", word:"wrong", hint:[0,1], def:"틀린"},
+      {t:"text", v:". After "},
+      {t:"blank", word:"walking", hint:[0,1,2], def:"걷다"},
+      {t:"text", v:" for "},
+      {t:"blank", word:"over", hint:[0,1], def:"~이상"},
+      {t:"text", v:" an "},
+      {t:"blank", word:"hour", hint:[0,1], def:"한 시간"},
+      {t:"text", v:", we "},
+      {t:"blank", word:"realized", hint:[0,1,2,3], def:"깨달았다"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"we", hint:[0], def:"우리"},
+      {t:"text", v:" were "},
+      {t:"blank", word:"lost", hint:[0,1], def:"길을 잃은"},
+      {t:"text", v:". The tall corn stalks blocked our view in every direction. Finally, we called out for help and heard other visitors calling back to guide us toward the exit."},
+    ]
+  },
+
+  // ── Passage 19: Finding a Stress-Relieving Hobby ─────────────────────────
+  {
+    title: "Finding a Stress-Relieving Hobby",
+    passage: [
+      {t:"text", v:"Amina's job has had her under a lot of stress. To "},
+      {t:"blank", word:"provide", hint:[0,1,2], def:"제공하다"},
+      {t:"text", v:" her a distraction "},
+      {t:"blank", word:"from", hint:[0,1], def:"~로부터"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"pressure", hint:[0,1,2,3], def:"압박"},
+      {t:"text", v:", "},
+      {t:"blank", word:"she", hint:[0], def:"그녀"},
+      {t:"text", v:" resolved "},
+      {t:"blank", word:"to", hint:[0], def:"~하기로"},
+      {t:"text", v:" undertake a new "},
+      {t:"blank", word:"hobby", hint:[0,1], def:"취미"},
+      {t:"text", v:". So "},
+      {t:"blank", word:"far", hint:[0], def:"지금까지"},
+      {t:"text", v:", "},
+      {t:"blank", word:"she", hint:[0], def:"그녀"},
+      {t:"text", v:" has "},
+      {t:"blank", word:"tried", hint:[0,1], def:"시도했다"},
+      {t:"text", v:" knitting, cycling, and "},
+      {t:"blank", word:"baking", hint:[0,1,2], def:"베이킹"},
+      {t:"text", v:" without "},
+      {t:"blank", word:"much", hint:[0,1], def:"많은"},
+      {t:"text", v:" interest. But she is about to try fishing next weekend, and she is more optimistic about that."},
+    ]
+  },
+
+  // ── Passage 20: Impact of Social Media on Social Relations ───────────────
+  {
+    title: "Impact of Social Media on Social Relations",
+    passage: [
+      {t:"text", v:"The use of social media has greatly increased in recent years. Some "},
+      {t:"blank", word:"have", hint:[0,1], def:"~해왔다"},
+      {t:"text", v:" thought "},
+      {t:"blank", word:"that", hint:[0,1], def:"~라고"},
+      {t:"text", v:" this "},
+      {t:"blank", word:"may", hint:[0], def:"~할 수도 있다"},
+      {t:"text", v:" have a negative "},
+      {t:"blank", word:"impact", hint:[0,1,2], def:"영향"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"social", hint:[0,1,2], def:"사회적인"},
+      {t:"text", v:" relations. For "},
+      {t:"blank", word:"example", hint:[0,1,2], def:"예시"},
+      {t:"text", v:", "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" lack "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" face "},
+      {t:"blank", word:"to", hint:[0], def:"~에"},
+      {t:"text", v:" face "},
+      {t:"blank", word:"interaction", hint:[0,1,2,3,4], def:"상호작용"},
+      {t:"text", v:" may "},
+      {t:"blank", word:"make", hint:[0,1], def:"만들다"},
+      {t:"text", v:" people "},
+      {t:"blank", word:"more", hint:[0,1], def:"더"},
+      {t:"text", v:" selfish. On the other hand, the wide availability of social media may make people more communicative."},
+    ]
+  },
+
+  // ── Passage 21: Affordable Solar-Powered Water Purification ─────────────
+  {
+    title: "Affordable Solar-Powered Water Purification",
+    passage: [
+      {t:"text", v:"Maria is an engineer who wanted to help people in remote villages. She "},
+      {t:"blank", word:"spent", hint:[0,1], def:"(시간을) 보냈다"},
+      {t:"text", v:" two "},
+      {t:"blank", word:"years", hint:[0,1], def:"년, 해"},
+      {t:"text", v:" developing a "},
+      {t:"blank", word:"simple", hint:[0,1,2], def:"간단한"},
+      {t:"text", v:" water purification "},
+      {t:"blank", word:"system", hint:[0,1,2], def:"시스템"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"costs", hint:[0,1], def:"(비용이) 든다"},
+      {t:"text", v:" only "},
+      {t:"blank", word:"fifty", hint:[0,1], def:"50, 오십"},
+      {t:"text", v:" dollars. "},
+      {t:"blank", word:"The", hint:[0], def:"그"},
+      {t:"text", v:" system "},
+      {t:"blank", word:"uses", hint:[0,1], def:"사용하다"},
+      {t:"text", v:" solar "},
+      {t:"blank", word:"energy", hint:[0,1,2], def:"에너지"},
+      {t:"text", v:" and basic "},
+      {t:"blank", word:"filters", hint:[0,1,2], def:"필터"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"clean", hint:[0,1], def:"정화하다"},
+      {t:"text", v:" dirty "},
+      {t:"blank", word:"water", hint:[0,1], def:"물"},
+      {t:"text", v:". Now villagers "},
+      {t:"blank", word:"can", hint:[0], def:"~할 수 있다"},
+      {t:"text", v:" have "},
+      {t:"blank", word:"clean", hint:[0,1], def:"깨끗한"},
+      {t:"text", v:" drinking "},
+      {t:"blank", word:"water", hint:[0,1], def:"물"},
+      {t:"text", v:" without spending a "},
+      {t:"blank", word:"lot", hint:[0], def:"많은"},
+      {t:"text", v:" of money. Her invention has already helped thousands of families stay healthy."},
+    ]
+  },
+
+  // ── Passage 22: Homecoming to a Renovated Sanctuary ─────────────────────
+  {
+    title: "Homecoming to a Renovated Sanctuary",
+    passage: [
+      {t:"text", v:"Azora took a deep breath and stepped inside her home for the first time in almost four months. She'd "},
+      {t:"blank", word:"arranged", hint:[0,1,2,3], def:"마련했다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"have", hint:[0,1], def:"~하게 하다"},
+      {t:"text", v:" major "},
+      {t:"blank", word:"restoration", hint:[0,1,2,3,4], def:"복원"},
+      {t:"text", v:" work "},
+      {t:"blank", word:"done", hint:[0,1], def:"완료된"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" house "},
+      {t:"blank", word:"while", hint:[0,1], def:"~하는 동안"},
+      {t:"text", v:" she'd done "},
+      {t:"blank", word:"some", hint:[0,1], def:"약간의"},
+      {t:"text", v:" extended traveling for "},
+      {t:"blank", word:"her", hint:[0], def:"그녀의"},
+      {t:"text", v:" job. Azora "},
+      {t:"blank", word:"immediately", hint:[0,1,2,3,4], def:"즉시"},
+      {t:"text", v:" smiled "},
+      {t:"blank", word:"when", hint:[0,1], def:"~할 때"},
+      {t:"text", v:" she "},
+      {t:"blank", word:"saw", hint:[0], def:"보았다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"changes", hint:[0,1,2], def:"변화들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"her", hint:[0], def:"그녀의"},
+      {t:"text", v:" home. It "},
+      {t:"blank", word:"looked", hint:[0,1,2], def:"~처럼 보였다"},
+      {t:"text", v:" almost "},
+      {t:"blank", word:"exactly", hint:[0,1,2], def:"정확히"},
+      {t:"text", v:" as "},
+      {t:"blank", word:"she", hint:[0], def:"그녀가"},
+      {t:"text", v:" had "},
+      {t:"blank", word:"pictured", hint:[0,1,2,3], def:"상상했다"},
+      {t:"text", v:" it "},
+      {t:"blank", word:"would", hint:[0,1], def:"~할 것이다"},
+      {t:"text", v:". The restoration had been a long and expensive process, but now Azora had a home that she was happy to live in."},
+    ]
+  },
+
+  // ── Passage 23: Documenting the Return of Wolves to Yellowstone ──────────
+  {
+    title: "Documenting the Return of Wolves to Yellowstone",
+    passage: [
+      {t:"text", v:"Sarah works as a wildlife photographer in Yellowstone National Park. Last "},
+      {t:"blank", word:"year", hint:[0,1], def:"작년"},
+      {t:"text", v:", "},
+      {t:"blank", word:"she", hint:[0], def:"그녀는"},
+      {t:"text", v:" documented "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" return "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" wolves "},
+      {t:"blank", word:"to", hint:[0], def:"~으로"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"park", hint:[0,1], def:"공원"},
+      {t:"text", v:". She "},
+      {t:"blank", word:"spent", hint:[0,1], def:"보냈다"},
+      {t:"text", v:" months "},
+      {t:"blank", word:"waiting", hint:[0,1,2], def:"기다리며"},
+      {t:"text", v:" in "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" wilderness, "},
+      {t:"blank", word:"taking", hint:[0,1,2], def:"찍으며"},
+      {t:"text", v:" hundreds "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" photos. "},
+      {t:"blank", word:"The", hint:[0], def:"그"},
+      {t:"text", v:" wolves "},
+      {t:"blank", word:"had", hint:[0], def:"했었다"},
+      {t:"text", v:" been "},
+      {t:"blank", word:"absent", hint:[0,1,2], def:"부재한"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" park "},
+      {t:"blank", word:"for", hint:[0], def:"~동안"},
+      {t:"text", v:" decades, "},
+      {t:"blank", word:"but", hint:[0], def:"하지만"},
+      {t:"text", v:" now "},
+      {t:"blank", word:"they", hint:[0,1], def:"그들은"},
+      {t:"text", v:" are "},
+      {t:"blank", word:"back", hint:[0,1], def:"돌아온"},
+      {t:"text", v:". Her amazing photographs show the wolves hunting and playing in their natural habitat."},
+    ]
+  },
+
+  // ── Passage 24: Ductwork Systems Explained ───────────────────────────────
+  {
+    title: "Ductwork Systems Explained",
+    passage: [
+      {t:"text", v:"Ductwork are systems of pipes, or ducts, that move air throughout a building. There "},
+      {t:"blank", word:"are", hint:[0], def:"~이다"},
+      {t:"text", v:" two "},
+      {t:"blank", word:"types", hint:[0,1], def:"종류"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"ductwork", hint:[0,1,2,3], def:"덕트 배관"},
+      {t:"text", v:" systems: return "},
+      {t:"blank", word:"ducts", hint:[0,1], def:"덕트"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"supply", hint:[0,1,2], def:"공급"},
+      {t:"text", v:" ducts. Return "},
+      {t:"blank", word:"ducts", hint:[0,1], def:"덕트"},
+      {t:"text", v:" pull "},
+      {t:"blank", word:"air", hint:[0], def:"공기"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"rooms", hint:[0,1], def:"방들"},
+      {t:"text", v:" in "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" building, "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" they "},
+      {t:"blank", word:"send", hint:[0,1], def:"보내다"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"air", hint:[0], def:"공기"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" unit "},
+      {t:"blank", word:"that", hint:[0,1], def:"~하는"},
+      {t:"text", v:" either "},
+      {t:"blank", word:"heats", hint:[0,1], def:"가열하다"},
+      {t:"text", v:" or "},
+      {t:"blank", word:"cools", hint:[0,1], def:"냉각하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"air", hint:[0], def:"공기"},
+      {t:"text", v:". Supply "},
+      {t:"blank", word:"ducts", hint:[0,1], def:"덕트"},
+      {t:"text", v:" then "},
+      {t:"blank", word:"blow", hint:[0,1], def:"불다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"warm", hint:[0,1], def:"따뜻한"},
+      {t:"text", v:" or "},
+      {t:"blank", word:"cool", hint:[0,1], def:"시원한"},
+      {t:"text", v:" air "},
+      {t:"blank", word:"back", hint:[0,1], def:"다시"},
+      {t:"text", v:" into "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" rooms. Return and supply ducts are usually made of metal, and they are often located within floors, ceilings, or walls."},
+    ]
+  },
+
+  // ── Passage 25: Successful Carpooling Program Reduces Traffic ────────────
+  {
+    title: "Successful Carpooling Program Reduces Traffic",
+    passage: [
+      {t:"text", v:"The new carpooling program has been a huge success in our community. "},
+      {t:"blank", word:"Many", hint:[0,1], def:"많은"},
+      {t:"text", v:" residents "},
+      {t:"blank", word:"have", hint:[0,1], def:"(현재완료)"},
+      {t:"text", v:" signed "},
+      {t:"blank", word:"up", hint:[0], def:"등록하다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"share", hint:[0,1], def:"공유하다"},
+      {t:"text", v:" rides "},
+      {t:"blank", word:"with", hint:[0,1], def:"~와 함께"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"neighbors", hint:[0,1,2,3], def:"이웃들"},
+      {t:"text", v:" during "},
+      {t:"blank", word:"rush", hint:[0,1], def:"혼잡 시간대"},
+      {t:"text", v:" hour. This "},
+      {t:"blank", word:"is", hint:[0], def:"이다"},
+      {t:"text", v:" helping "},
+      {t:"blank", word:"to", hint:[0], def:"~하도록"},
+      {t:"text", v:" reduce "},
+      {t:"blank", word:"traffic", hint:[0,1,2], def:"교통"},
+      {t:"text", v:" congestion "},
+      {t:"blank", word:"on", hint:[0], def:"~위에"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"main", hint:[0,1], def:"주요한"},
+      {t:"text", v:" roads. "},
+      {t:"blank", word:"People", hint:[0,1,2], def:"사람들"},
+      {t:"text", v:" are "},
+      {t:"blank", word:"also", hint:[0,1], def:"또한"},
+      {t:"text", v:" saving "},
+      {t:"blank", word:"money", hint:[0,1], def:"돈"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"gas", hint:[0], def:"휘발유"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"parking", hint:[0,1,2], def:"주차"},
+      {t:"text", v:" fees. The program organizers hope that more people will join and make commuting easier for everyone."},
+    ]
+  },
+
+  // ── Passage 26: Balancing AI Integration with Human Oversight ────────────
+  {
+    title: "Balancing AI Integration with Human Oversight",
+    passage: [
+      {t:"text", v:"Artificial intelligence systems are increasingly being integrated into decision-making processes across various sectors of society. These advanced technologies can process vast amounts of data and identify patterns that humans might overlook. However, "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" integration "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" AI "},
+      {t:"blank", word:"into", hint:[0,1], def:"~안으로"},
+      {t:"text", v:" critical "},
+      {t:"blank", word:"decisions", hint:[0,1,2,3], def:"결정들"},
+      {t:"text", v:" raises "},
+      {t:"blank", word:"important", hint:[0,1,2,3], def:"중요한"},
+      {t:"text", v:" ethical "},
+      {t:"blank", word:"questions", hint:[0,1,2,3], def:"질문들"},
+      {t:"text", v:" about "},
+      {t:"blank", word:"accountability", hint:[0,1,2,3,4,5,6], def:"책임성"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"transparency", hint:[0,1,2,3,4,5], def:"투명성"},
+      {t:"text", v:". While AI "},
+      {t:"blank", word:"can", hint:[0], def:"~할 수 있다"},
+      {t:"text", v:" provide "},
+      {t:"blank", word:"valuable", hint:[0,1,2,3], def:"가치 있는"},
+      {t:"text", v:" insights "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" recommendations, "},
+      {t:"blank", word:"it", hint:[0], def:"그것"},
+      {t:"text", v:" should "},
+      {t:"blank", word:"not", hint:[0], def:"아니다"},
+      {t:"text", v:" replace "},
+      {t:"blank", word:"human", hint:[0,1], def:"인간의"},
+      {t:"text", v:" judgment "},
+      {t:"blank", word:"entirely", hint:[0,1,2,3], def:"완전히"},
+      {t:"text", v:". The challenge lies in finding the right balance between leveraging AI's computational power and maintaining human oversight in important decisions that affect people's lives."},
+    ]
+  },
+
+  // ── Passage 27: The Debate Over Space Exploration Funding ────────────────
+  {
+    title: "The Debate Over Space Exploration Funding",
+    passage: [
+      {t:"text", v:"Space exploration has captured human imagination for decades, but critics question whether the enormous costs are justified by the benefits. Governments "},
+      {t:"blank", word:"spend", hint:[0,1], def:"(돈을) 쓰다"},
+      {t:"text", v:" billions "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" dollars "},
+      {t:"blank", word:"on", hint:[0], def:"~에"},
+      {t:"text", v:" rocket "},
+      {t:"blank", word:"development", hint:[0,1,2,3,4], def:"개발"},
+      {t:"text", v:", satellite "},
+      {t:"blank", word:"launches", hint:[0,1,2,3], def:"발사"},
+      {t:"text", v:", and "},
+      {t:"blank", word:"space", hint:[0,1], def:"우주"},
+      {t:"text", v:" station "},
+      {t:"blank", word:"operations", hint:[0,1,2,3,4], def:"운영"},
+      {t:"text", v:". These "},
+      {t:"blank", word:"massive", hint:[0,1,2], def:"막대한"},
+      {t:"text", v:" investments "},
+      {t:"blank", word:"often", hint:[0,1], def:"자주"},
+      {t:"text", v:" face "},
+      {t:"blank", word:"scrutiny", hint:[0,1,2,3], def:"면밀한 검토"},
+      {t:"text", v:" from taxpayers "},
+      {t:"blank", word:"who", hint:[0], def:"~하는"},
+      {t:"text", v:" wonder "},
+      {t:"blank", word:"if", hint:[0], def:"~인지"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"money", hint:[0,1], def:"돈"},
+      {t:"text", v:" could "},
+      {t:"blank", word:"be", hint:[0], def:"이다"},
+      {t:"text", v:" better "},
+      {t:"blank", word:"spent", hint:[0,1], def:"지출된"},
+      {t:"text", v:" on earthly "},
+      {t:"blank", word:"problems", hint:[0,1,2,3], def:"문제들"},
+      {t:"text", v:". However, supporters argue that space programs generate valuable scientific knowledge and technological innovations that benefit society. Many everyday technologies, from GPS systems to weather forecasting, originated from space research and development."},
+    ]
+  },
+
+  // ── Passage 28: Opportunities in Civil Engineering Technology ────────────
+  {
+    title: "Opportunities in Civil Engineering Technology",
+    passage: [
+      {t:"text", v:"Civil engineering technology is a great field to work in, because it requires someone who works well with their hands, and strives for accuracy. It's "},
+      {t:"blank", word:"also", hint:[0,1], def:"또한"},
+      {t:"text", v:" a great "},
+      {t:"blank", word:"field", hint:[0,1], def:"분야"},
+      {t:"text", v:" because "},
+      {t:"blank", word:"it", hint:[0], def:"그것은"},
+      {t:"text", v:" offers "},
+      {t:"blank", word:"challenging", hint:[0,1,2,3,4], def:"도전적인"},
+      {t:"text", v:" opportunities. As a "},
+      {t:"blank", word:"civil", hint:[0,1], def:"토목의"},
+      {t:"text", v:" engineer, "},
+      {t:"blank", word:"you", hint:[0], def:"당신은"},
+      {t:"text", v:" could "},
+      {t:"blank", word:"design", hint:[0,1,2], def:"설계하다"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"build", hint:[0,1], def:"건설하다"},
+      {t:"text", v:" things "},
+      {t:"blank", word:"like", hint:[0,1], def:"~같은"},
+      {t:"text", v:" roads, "},
+      {t:"blank", word:"bridges", hint:[0,1,2], def:"다리"},
+      {t:"text", v:", and "},
+      {t:"blank", word:"buildings", hint:[0,1,2,3], def:"건물들"},
+      {t:"text", v:". Although "},
+      {t:"blank", word:"civil", hint:[0,1], def:"토목의"},
+      {t:"text", v:" engineering "},
+      {t:"blank", word:"technology", hint:[0,1,2,3,4], def:"기술"},
+      {t:"text", v:" is "},
+      {t:"blank", word:"challenging", hint:[0,1,2,3,4], def:"도전적인"},
+      {t:"text", v:", it's very "},
+      {t:"blank", word:"rewarding", hint:[0,1,2,3], def:"보람 있는"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"work", hint:[0,1], def:"일하다"},
+      {t:"text", v:" with "},
+      {t:"blank", word:"new", hint:[0], def:"새로운"},
+      {t:"text", v:" skills "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"work", hint:[0,1], def:"일하다"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"complex", hint:[0,1,2], def:"복잡한"},
+      {t:"text", v:" projects. Graduating from a civil engineering technology program can be very beneficial to your career."},
+    ]
+  },
+
+  // ── Passage 29: Evaluating Sentencing Approaches ─────────────────────────
+  {
+    title: "Evaluating Sentencing Approaches for Non-Violent Offenders",
+    passage: [
+      {t:"text", v:"Criminal justice researchers have long debated the effectiveness of different sentencing approaches for non-violent offenders. Community service programs "},
+      {t:"blank", word:"allow", hint:[0,1], def:"허용하다"},
+      {t:"text", v:" offenders "},
+      {t:"blank", word:"to", hint:[0], def:"~하도록"},
+      {t:"text", v:" remain "},
+      {t:"blank", word:"in", hint:[0], def:"~안에서"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"communities", hint:[0,1,2,3,4], def:"지역사회"},
+      {t:"text", v:" while "},
+      {t:"blank", word:"completing", hint:[0,1,2,3,4], def:"완료하면서"},
+      {t:"text", v:" court-ordered "},
+      {t:"blank", word:"work", hint:[0,1], def:"일"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"benefits", hint:[0,1,2,3], def:"이익을 주다"},
+      {t:"text", v:" society. In "},
+      {t:"blank", word:"contrast", hint:[0,1,2,3], def:"대조"},
+      {t:"text", v:", jail "},
+      {t:"blank", word:"time", hint:[0,1], def:"시간"},
+      {t:"text", v:" removes "},
+      {t:"blank", word:"offenders", hint:[0,1,2,3], def:"범죄자들"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"their", hint:[0,1], def:"그들의"},
+      {t:"text", v:" communities "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" places "},
+      {t:"blank", word:"them", hint:[0,1], def:"그들을"},
+      {t:"text", v:" in a "},
+      {t:"blank", word:"controlled", hint:[0,1,2,3,4], def:"통제된"},
+      {t:"text", v:" environment. Recent "},
+      {t:"blank", word:"studies", hint:[0,1,2], def:"연구들"},
+      {t:"text", v:" suggest "},
+      {t:"blank", word:"that", hint:[0,1], def:"~임을"},
+      {t:"text", v:" community "},
+      {t:"blank", word:"service", hint:[0,1,2], def:"봉사"},
+      {t:"text", v:" may "},
+      {t:"blank", word:"be", hint:[0], def:"~이다"},
+      {t:"text", v:" more "},
+      {t:"blank", word:"effective", hint:[0,1,2,3], def:"효과적인"},
+      {t:"text", v:" at "},
+      {t:"blank", word:"reducing", hint:[0,1,2,3], def:"줄이는"},
+      {t:"text", v:" recidivism "},
+      {t:"blank", word:"rates", hint:[0,1], def:"비율"},
+      {t:"text", v:" than "},
+      {t:"blank", word:"short", hint:[0,1], def:"짧은"},
+      {t:"text", v:" jail "},
+      {t:"blank", word:"sentences", hint:[0,1,2,3], def:"형량"},
+      {t:"text", v:". However, critics argue that jail time provides a stronger deterrent effect and ensures public safety."},
+    ]
+  },
+
+  // ── Passage 30: Environmental Lawyers and Water Pollution ────────────────
+  {
+    title: "The Role of Environmental Lawyers in Water Pollution Accountability",
+    passage: [
+      {t:"text", v:"Environmental lawyers play a crucial role in holding corporations accountable for water pollution and ensuring proper cleanup efforts. "},
+      {t:"blank", word:"These", hint:[0,1], def:"이러한"},
+      {t:"text", v:" legal professionals specialize "},
+      {t:"blank", word:"in", hint:[0], def:"~에"},
+      {t:"text", v:" environmental "},
+      {t:"blank", word:"law", hint:[0], def:"법"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"work", hint:[0,1], def:"일하다"},
+      {t:"text", v:" closely "},
+      {t:"blank", word:"with", hint:[0,1], def:"~와 함께"},
+      {t:"text", v:" regulatory agencies "},
+      {t:"blank", word:"to", hint:[0], def:"~하기 위해"},
+      {t:"text", v:" investigate pollution incidents. "},
+      {t:"blank", word:"When", hint:[0,1], def:"~할 때"},
+      {t:"text", v:" a "},
+      {t:"blank", word:"company", hint:[0,1,2], def:"회사"},
+      {t:"text", v:" is "},
+      {t:"blank", word:"found", hint:[0,1], def:"밝혀진"},
+      {t:"text", v:" responsible "},
+      {t:"blank", word:"for", hint:[0], def:"~에 대해"},
+      {t:"text", v:" contaminating water sources, "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" lawyer "},
+      {t:"blank", word:"must", hint:[0,1], def:"반드시 ~해야 한다"},
+      {t:"text", v:" determine "},
+      {t:"blank", word:"the", hint:[0], def:"그"},
+      {t:"text", v:" extent "},
+      {t:"blank", word:"of", hint:[0], def:"~의"},
+      {t:"text", v:" the damage "},
+      {t:"blank", word:"and", hint:[0], def:"그리고"},
+      {t:"text", v:" the appropriate remedial measures. The cleanup process often involves complex negotiations between the polluting company, government agencies, and affected communities to ensure that water quality is restored to safe levels."},
+    ]
+  },
+
+  // ── Passage 31: Climate Policy and Carbon Emissions ──────────────────────
+  {
+    title: "Climate Policy and Carbon Emissions",
+    passage: [
+      {t:"text", v:"Scientists agree that climate change is one of the most urgent challenges facing the world today. Governments are now developing comprehensive "},
+      {t:"blank", word:"policies", hint:[0,1,2], def:"정책들"},
+      {t:"text", v:" to reduce carbon emissions and "},
+      {t:"blank", word:"require", hint:[0,1,2], def:"필요로 하다"},
+      {t:"text", v:" substantial "},
+      {t:"blank", word:"investment", hint:[0,1,2,3], def:"투자"},
+      {t:"text", v:" in renewable energy. Researchers "},
+      {t:"blank", word:"estimate", hint:[0,1,2], def:"추정하다"},
+      {t:"text", v:" that without urgent action, the "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"consequences", hint:[0,1,2,3], def:"결과들"},
+      {t:"text", v:" could be "},
+      {t:"blank", word:"severe", hint:[0,1], def:"심각한"},
+      {t:"text", v:". International agreements aim to "},
+      {t:"blank", word:"coordinate", hint:[0,1,2,3], def:"조율하다"},
+      {t:"text", v:" responses and "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that all nations "},
+      {t:"blank", word:"contribute", hint:[0,1,2,3], def:"기여하다"},
+      {t:"text", v:" to solutions. Without strong global cooperation, the world cannot achieve the emissions reductions that are needed to limit the worst effects of climate change."},
+    ]
+  },
+
+  // ── Passage 32: The Cognitive Benefits of Bilingualism ───────────────────
+  {
+    title: "The Cognitive Benefits of Bilingualism",
+    passage: [
+      {t:"text", v:"Learning a second language is one of the most valuable investments a person can make in their education. Research "},
+      {t:"blank", word:"indicates", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that bilingual "},
+      {t:"blank", word:"individuals", hint:[0,1,2,3], def:"개인들"},
+      {t:"text", v:" often "},
+      {t:"blank", word:"demonstrate", hint:[0,1,2,3], def:"보여주다"},
+      {t:"text", v:" greater mental flexibility and can "},
+      {t:"blank", word:"delay", hint:[0,1], def:"늦추다"},
+      {t:"text", v:" cognitive decline in old age. Schools are working to "},
+      {t:"blank", word:"integrate", hint:[0,1,2], def:"통합하다"},
+      {t:"text", v:" language learning across subjects, and employers in many "},
+      {t:"blank", word:"sectors", hint:[0,1,2], def:"분야들"},
+      {t:"text", v:" seek workers with "},
+      {t:"blank", word:"diverse", hint:[0,1,2], def:"다양한"},
+      {t:"text", v:" linguistic skills. As a result, bilingual speakers generally enjoy stronger career opportunities and higher earning potential throughout their working lives."},
+    ]
+  },
+
+  // ── Passage 33: Urban Farming Initiatives ────────────────────────────────
+  {
+    title: "Urban Farming Initiatives",
+    passage: [
+      {t:"text", v:"Cities around the world are exploring new ways to produce fresh food for their growing populations. Urban farming offers an "},
+      {t:"blank", word:"innovative", hint:[0,1,2,3], def:"혁신적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"approach", hint:[0,1,2], def:"접근법"},
+      {t:"text", v:" that reduces dependence on long-distance food "},
+      {t:"blank", word:"distribution", hint:[0,1,2,3], def:"유통"},
+      {t:"text", v:" and can "},
+      {t:"blank", word:"contribute", hint:[0,1,2,3], def:"기여하다"},
+      {t:"text", v:" to environmental "},
+      {t:"blank", word:"sustainability", hint:[0,1,2,3], def:"지속가능성"},
+      {t:"text", v:". Local governments are beginning to "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"수립하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"policies", hint:[0,1,2], def:"정책들"},
+      {t:"text", v:" that support urban agriculture and increase the "},
+      {t:"blank", word:"availability", hint:[0,1,2,3], def:"이용 가능성"},
+      {t:"text", v:" of fresh food. These initiatives also promote community "},
+      {t:"blank", word:"involvement", hint:[0,1,2,3], def:"참여"},
+      {t:"text", v:" and social cohesion. As more cities adopt urban farming programs, they are discovering that these projects bring both environmental and social benefits to local residents."},
+    ]
+  },
+
+  // ── Passage 34: Artificial Intelligence in Healthcare ────────────────────
+  {
+    title: "Artificial Intelligence in Healthcare",
+    passage: [
+      {t:"text", v:"Artificial intelligence is beginning to transform the way doctors diagnose and treat disease. AI systems can "},
+      {t:"blank", word:"analyze", hint:[0,1,2], def:"분석하다"},
+      {t:"text", v:" vast amounts of patient "},
+      {t:"blank", word:"data", hint:[0,1], def:"데이터"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"identify", hint:[0,1,2], def:"파악하다"},
+      {t:"text", v:" patterns that physicians might miss, and researchers have "},
+      {t:"blank", word:"demonstrated", hint:[0,1,2,3], def:"입증했다"},
+      {t:"text", v:" that AI tools can detect certain diseases with high accuracy. However, experts "},
+      {t:"blank", word:"emphasize", hint:[0,1,2], def:"강조하다"},
+      {t:"text", v:" that these systems should "},
+      {t:"blank", word:"assist", hint:[0,1], def:"보조하다"},
+      {t:"text", v:" rather than replace doctors, and clear "},
+      {t:"blank", word:"legal", hint:[0,1], def:"법적인"},
+      {t:"text", v:" frameworks are "},
+      {t:"blank", word:"required", hint:[0,1,2], def:"요구된다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" responsible use. Finding the right balance between human judgment and AI assistance will be one of the defining challenges for healthcare systems in the coming decades."},
+    ]
+  },
+
+  // ── Passage 35: Economic Migration and Labor Markets ─────────────────────
+  {
+    title: "Economic Migration and Labor Markets",
+    passage: [
+      {t:"text", v:"Economic migration has long been an important part of how labor markets around the world function. Research "},
+      {t:"blank", word:"indicates", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that migrants often fill critical roles in host country "},
+      {t:"blank", word:"labor", hint:[0,1], def:"노동"},
+      {t:"text", v:" markets and make a "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적"},
+      {t:"text", v:" contribution by generating "},
+      {t:"blank", word:"income", hint:[0,1,2], def:"소득"},
+      {t:"text", v:" and paying taxes. However, migration can also create "},
+      {t:"blank", word:"challenges", hint:[0,1,2], def:"도전들"},
+      {t:"text", v:" related to housing and social "},
+      {t:"blank", word:"integration", hint:[0,1,2,3], def:"통합"},
+      {t:"text", v:", which "},
+      {t:"blank", word:"require", hint:[0,1,2], def:"필요로 하다"},
+      {t:"text", v:" a thoughtful policy "},
+      {t:"blank", word:"approach", hint:[0,1,2], def:"접근법"},
+      {t:"text", v:". Governments that manage migration well tend to enjoy stronger economies and more cohesive communities than those that do not."},
+    ]
+  },
+
+  // ── Passage 36: Ocean Conservation Efforts ───────────────────────────────
+  {
+    title: "Ocean Conservation Efforts",
+    passage: [
+      {t:"text", v:"The world's oceans are under increasing threat from pollution, overfishing, and the effects of climate change. Scientists have "},
+      {t:"blank", word:"documented", hint:[0,1,2,3], def:"기록했다"},
+      {t:"text", v:" a "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" decline in marine biodiversity, and conservation groups are working with governments to "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"설립하다"},
+      {t:"text", v:" protected areas and "},
+      {t:"blank", word:"regulate", hint:[0,1,2], def:"규제하다"},
+      {t:"text", v:" harmful fishing practices. Research "},
+      {t:"blank", word:"indicates", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that when protective measures are "},
+      {t:"blank", word:"consistently", hint:[0,1,2,3], def:"일관되게"},
+      {t:"text", v:" applied, fish populations can "},
+      {t:"blank", word:"recover", hint:[0,1,2], def:"회복하다"},
+      {t:"text", v:" and ecosystem health can be "},
+      {t:"blank", word:"restored", hint:[0,1,2], def:"회복된다"},
+      {t:"text", v:". Protecting ocean "},
+      {t:"blank", word:"sustainability", hint:[0,1,2,3], def:"지속가능성"},
+      {t:"text", v:" requires coordinated action from all nations. The health of the oceans is closely connected to the health of people everywhere, and no country can solve this problem alone."},
+    ]
+  },
+
+  // ── Passage 37: Bridging the Digital Divide ──────────────────────────────
+  {
+    title: "Bridging the Digital Divide",
+    passage: [
+      {t:"text", v:"Access to digital technology has become increasingly essential for full participation in modern society. However, "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"disparities", hint:[0,1,2,3], def:"격차들"},
+      {t:"text", v:" exist across socioeconomic groups, with researchers having "},
+      {t:"blank", word:"identified", hint:[0,1,2,3], def:"파악했다"},
+      {t:"text", v:" lack of "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:" and cost as the "},
+      {t:"blank", word:"primary", hint:[0,1,2], def:"주요한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"factors", hint:[0,1,2], def:"요인들"},
+      {t:"text", v:". Governments are "},
+      {t:"blank", word:"implementing", hint:[0,1,2,3], def:"시행하고 있다"},
+      {t:"text", v:" programs to "},
+      {t:"blank", word:"expand", hint:[0,1,2], def:"확장하다"},
+      {t:"text", v:" access and "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that all "},
+      {t:"blank", word:"individuals", hint:[0,1,2,3], def:"개인들이"},
+      {t:"text", v:" can benefit from the "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적인"},
+      {t:"text", v:" opportunities that technology provides. Closing the digital divide is not just a matter of fairness — it is essential for building a more productive and inclusive economy for the future."},
+    ]
+  },
+
+  // ── Passage 38: Challenges of Aging Populations ──────────────────────────
+  {
+    title: "Challenges of Aging Populations",
+    passage: [
+      {t:"text", v:"Many developed countries are facing serious challenges as their populations grow older and birth rates decline. Governments must "},
+      {t:"blank", word:"allocate", hint:[0,1,2], def:"배분하다"},
+      {t:"text", v:" greater "},
+      {t:"blank", word:"resources", hint:[0,1,2], def:"자원"},
+      {t:"text", v:" to healthcare, and researchers "},
+      {t:"blank", word:"estimate", hint:[0,1,2], def:"추정한다"},
+      {t:"text", v:" that without "},
+      {t:"blank", word:"structural", hint:[0,1,2,3], def:"구조적인"},
+      {t:"text", v:" reforms, these demands will create substantial "},
+      {t:"blank", word:"financial", hint:[0,1,2], def:"재정적인"},
+      {t:"text", v:" pressure. Policy makers are exploring various "},
+      {t:"blank", word:"approaches", hint:[0,1,2], def:"접근법들"},
+      {t:"text", v:", including encouraging higher "},
+      {t:"blank", word:"labor", hint:[0,1], def:"노동"},
+      {t:"text", v:" force participation among older workers, while "},
+      {t:"blank", word:"ensuring", hint:[0,1,2], def:"보장하면서"},
+      {t:"text", v:" "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적"},
+      {t:"text", v:" sustainability. How governments respond to aging populations today will have lasting consequences for the quality of life of future generations."},
+    ]
+  },
+
+  // ── Passage 39: The Value of Liberal Arts Education ──────────────────────
+  {
+    title: "The Value of Liberal Arts Education",
+    passage: [
+      {t:"text", v:"The debate over the value of a liberal arts education has intensified as college tuition costs continue to rise. Proponents argue that the "},
+      {t:"blank", word:"emphasis", hint:[0,1,2], def:"강조"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"analytical", hint:[0,1,2,3], def:"분석적인"},
+      {t:"text", v:" thinking prepares graduates to adapt to changing "},
+      {t:"blank", word:"labor", hint:[0,1], def:"노동"},
+      {t:"text", v:" markets, and research "},
+      {t:"blank", word:"indicates", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that employers increasingly seek workers who can "},
+      {t:"blank", word:"analyze", hint:[0,1,2], def:"분석하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"complex", hint:[0,1,2], def:"복잡한"},
+      {t:"text", v:" problems across different "},
+      {t:"blank", word:"contexts", hint:[0,1,2], def:"맥락들"},
+      {t:"text", v:". Critics, however, argue that the "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적"},
+      {t:"text", v:" returns are lower compared to more "},
+      {t:"blank", word:"specialized", hint:[0,1,2,3], def:"전문화된"},
+      {t:"text", v:" programs, leaving graduates with fewer job options. Despite this, many educators maintain that a broad-based education provides the flexibility and resilience needed to thrive in a rapidly changing world."},
+    ]
+  },
+
+  // ── Passage 40: Technology and Personal Privacy ───────────────────────────
+  {
+    title: "Technology and Personal Privacy",
+    passage: [
+      {t:"text", v:"The rapid advancement of digital technology has raised important questions about personal privacy and data security. Many modern applications "},
+      {t:"blank", word:"collect", hint:[0,1,2], def:"수집하다"},
+      {t:"text", v:" vast amounts of information without users' "},
+      {t:"blank", word:"explicit", hint:[0,1,2], def:"명시적인"},
+      {t:"text", v:" consent, and researchers argue that "},
+      {t:"blank", word:"individuals", hint:[0,1,2,3], def:"개인들"},
+      {t:"text", v:" should have greater control over their personal "},
+      {t:"blank", word:"data", hint:[0,1], def:"데이터"},
+      {t:"text", v:". Governments have responded by implementing comprehensive "},
+      {t:"blank", word:"legislation", hint:[0,1,2,3], def:"법률"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"regulate", hint:[0,1,2], def:"규제하다"},
+      {t:"text", v:" data collection and "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"확립하다"},
+      {t:"text", v:" clear "},
+      {t:"blank", word:"standards", hint:[0,1,2,3], def:"기준들"},
+      {t:"text", v:" for data protection, holding organizations "},
+      {t:"blank", word:"accountable", hint:[0,1,2,3], def:"책임 있는"},
+      {t:"text", v:" for violations. As technology continues to evolve, governments and companies will need to work together to ensure that privacy protections keep pace with new developments."},
+    ]
+  },
+
+  // ── Passage 41: The Renewable Energy Transition ───────────────────────────
+  {
+    title: "The Renewable Energy Transition",
+    passage: [
+      {t:"text", v:"Many countries are now committed to replacing fossil fuels with cleaner sources of power. Governments are offering financial "},
+      {t:"blank", word:"incentives", hint:[0,1,2,3], def:"장려책들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"accelerate", hint:[0,1,2,3], def:"가속화하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"transition", hint:[0,1,2,3], def:"전환"},
+      {t:"text", v:" to solar and wind power, and energy companies are investing heavily in new "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:". Researchers note that the "},
+      {t:"blank", word:"sector", hint:[0,1,2], def:"분야"},
+      {t:"text", v:" is growing rapidly, but "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"barriers", hint:[0,1,2], def:"장벽들"},
+      {t:"text", v:" such as storage "},
+      {t:"blank", word:"capacity", hint:[0,1,2], def:"용량"},
+      {t:"text", v:" and grid "},
+      {t:"blank", word:"integration", hint:[0,1,2,3], def:"통합"},
+      {t:"text", v:" remain. The shift to renewable energy will ultimately determine whether the world can meet its long-term climate goals while maintaining economic growth."},
+    ]
+  },
+
+  // ── Passage 42: Social Media and Mental Health ────────────────────────────
+  {
+    title: "Social Media and Mental Health",
+    passage: [
+      {t:"text", v:"The widespread use of social media platforms has prompted researchers to examine their effects on psychological well-being. Studies "},
+      {t:"blank", word:"indicate", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that excessive use is "},
+      {t:"blank", word:"associated", hint:[0,1,2,3], def:"연관된"},
+      {t:"text", v:" with higher levels of anxiety and depression among "},
+      {t:"blank", word:"adolescents", hint:[0,1,2,3], def:"청소년들"},
+      {t:"text", v:". However, researchers also "},
+      {t:"blank", word:"acknowledge", hint:[0,1,2,3], def:"인정하다"},
+      {t:"text", v:" that platforms can "},
+      {t:"blank", word:"facilitate", hint:[0,1,2,3], def:"촉진하다"},
+      {t:"text", v:" social "},
+      {t:"blank", word:"support", hint:[0,1,2], def:"지지"},
+      {t:"text", v:" and community "},
+      {t:"blank", word:"connection", hint:[0,1,2,3], def:"연결"},
+      {t:"text", v:" for isolated "},
+      {t:"blank", word:"individuals", hint:[0,1,2,3], def:"개인들"},
+      {t:"text", v:". Developing clear guidelines for healthy digital habits is therefore essential to help people enjoy the benefits of social media while minimizing its potential harms."},
+    ]
+  },
+
+  // ── Passage 43: Globalization and Cultural Identity ───────────────────────
+  {
+    title: "Globalization and Cultural Identity",
+    passage: [
+      {t:"text", v:"Globalization has connected people across the world in unprecedented ways, but it has also raised concerns about cultural diversity. Critics argue that the "},
+      {t:"blank", word:"dominance", hint:[0,1,2,3], def:"지배"},
+      {t:"text", v:" of Western media and consumer culture can "},
+      {t:"blank", word:"erode", hint:[0,1], def:"약화시키다"},
+      {t:"text", v:" local "},
+      {t:"blank", word:"traditions", hint:[0,1,2,3], def:"전통들"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"undermine", hint:[0,1,2,3], def:"약화시키다"},
+      {t:"text", v:" cultural "},
+      {t:"blank", word:"identity", hint:[0,1,2], def:"정체성"},
+      {t:"text", v:". Others, however, "},
+      {t:"blank", word:"contend", hint:[0,1,2], def:"주장하다"},
+      {t:"text", v:" that communities are "},
+      {t:"blank", word:"capable", hint:[0,1,2], def:"능력 있는"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"adapting", hint:[0,1,2,3], def:"적응하면서"},
+      {t:"text", v:" global influences to their own "},
+      {t:"blank", word:"contexts", hint:[0,1,2], def:"맥락에"},
+      {t:"text", v:". The challenge for societies is to engage with the global world while actively preserving the unique languages, customs, and values that define their cultural heritage."},
+    ]
+  },
+
+  // ── Passage 44: Education Technology ─────────────────────────────────────
+  {
+    title: "Education Technology",
+    passage: [
+      {t:"text", v:"Digital technology is reshaping classrooms around the world, creating new opportunities for personalized learning. Online platforms "},
+      {t:"blank", word:"enable", hint:[0,1], def:"가능하게 하다"},
+      {t:"text", v:" students to "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"resources", hint:[0,1,2], def:"자원들"},
+      {t:"text", v:" at their own pace, and data "},
+      {t:"blank", word:"analytics", hint:[0,1,2,3], def:"분석"},
+      {t:"text", v:" allow teachers to "},
+      {t:"blank", word:"identify", hint:[0,1,2], def:"파악하다"},
+      {t:"text", v:" students who "},
+      {t:"blank", word:"require", hint:[0,1,2], def:"필요로 한다"},
+      {t:"text", v:" additional "},
+      {t:"blank", word:"support", hint:[0,1,2], def:"지원"},
+      {t:"text", v:". However, experts warn that technology alone cannot "},
+      {t:"blank", word:"replace", hint:[0,1,2], def:"대체하다"},
+      {t:"text", v:" the role of skilled teachers in "},
+      {t:"blank", word:"facilitating", hint:[0,1,2,3], def:"촉진하는"},
+      {t:"text", v:" meaningful "},
+      {t:"blank", word:"interaction", hint:[0,1,2,3], def:"상호작용"},
+      {t:"text", v:". The most effective educational environments are those that use technology as a tool to support, rather than replace, the human relationships at the heart of learning."},
+    ]
+  },
+
+  // ── Passage 45: Genetic Research and Ethics ───────────────────────────────
+  {
+    title: "Genetic Research and Ethics",
+    passage: [
+      {t:"text", v:"Advances in genetic science have created extraordinary possibilities for medicine, but they have also raised profound ethical questions. Scientists can now "},
+      {t:"blank", word:"modify", hint:[0,1,2], def:"변형하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"genetic", hint:[0,1,2], def:"유전적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"code", hint:[0,1], def:"코드"},
+      {t:"text", v:" of living organisms to "},
+      {t:"blank", word:"eliminate", hint:[0,1,2,3], def:"제거하다"},
+      {t:"text", v:" inherited diseases, but critics warn that this technology could be "},
+      {t:"blank", word:"misused", hint:[0,1,2], def:"악용될"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"enhance", hint:[0,1,2], def:"향상시키다"},
+      {t:"text", v:" physical or cognitive "},
+      {t:"blank", word:"traits", hint:[0,1,2], def:"특성들"},
+      {t:"text", v:" for non-medical reasons. International bodies are working to "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"수립하다"},
+      {t:"text", v:" clear "},
+      {t:"blank", word:"regulations", hint:[0,1,2,3], def:"규정들"},
+      {t:"text", v:". Ensuring that the benefits of genetic research are shared equitably and that its risks are carefully managed will be one of the defining challenges of twenty-first century science."},
+    ]
+  },
+
+  // ── Passage 46: Universal Basic Income ───────────────────────────────────
+  {
+    title: "Universal Basic Income",
+    passage: [
+      {t:"text", v:"Universal basic income is a policy proposal that has attracted growing interest among economists and policymakers worldwide. Supporters argue that providing all citizens with a guaranteed monthly "},
+      {t:"blank", word:"income", hint:[0,1,2], def:"소득"},
+      {t:"text", v:" would "},
+      {t:"blank", word:"reduce", hint:[0,1,2], def:"줄이다"},
+      {t:"text", v:" poverty and give workers greater "},
+      {t:"blank", word:"flexibility", hint:[0,1,2,3], def:"유연성"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"pursue", hint:[0,1,2], def:"추구하다"},
+      {t:"text", v:" education or entrepreneurship. Critics, however, "},
+      {t:"blank", word:"challenge", hint:[0,1,2], def:"문제 제기하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"assumption", hint:[0,1,2,3], def:"가정"},
+      {t:"text", v:" that such a program is "},
+      {t:"blank", word:"financially", hint:[0,1,2,3], def:"재정적으로"},
+      {t:"text", v:" "},
+      {t:"blank", word:"sustainable", hint:[0,1,2,3], def:"지속 가능한"},
+      {t:"text", v:" without "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" tax increases. Pilot programs in several countries are now generating evidence that will help policymakers evaluate whether universal basic income is a practical solution to modern economic challenges."},
+    ]
+  },
+
+  // ── Passage 47: Microplastics in the Food Chain ───────────────────────────
+  {
+    title: "Microplastics in the Food Chain",
+    passage: [
+      {t:"text", v:"Microplastics have been detected in drinking water, seafood, and even the air we breathe, raising serious concerns about human health. Scientists are working to "},
+      {t:"blank", word:"assess", hint:[0,1,2], def:"평가하다"},
+      {t:"text", v:" the long-term "},
+      {t:"blank", word:"impact", hint:[0,1,2], def:"영향"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"exposure", hint:[0,1,2], def:"노출"},
+      {t:"text", v:" to these tiny particles, which "},
+      {t:"blank", word:"accumulate", hint:[0,1,2,3], def:"축적된다"},
+      {t:"text", v:" in the bodies of marine animals and eventually "},
+      {t:"blank", word:"enter", hint:[0,1,2], def:"들어가다"},
+      {t:"text", v:" the human food chain. Researchers "},
+      {t:"blank", word:"recommend", hint:[0,1,2,3], def:"권고하다"},
+      {t:"text", v:" stricter "},
+      {t:"blank", word:"regulations", hint:[0,1,2,3], def:"규정들"},
+      {t:"text", v:" on plastic "},
+      {t:"blank", word:"production", hint:[0,1,2,3], def:"생산"},
+      {t:"text", v:" and improved waste "},
+      {t:"blank", word:"management", hint:[0,1,2,3], def:"관리"},
+      {t:"text", v:". Addressing the microplastics crisis will require urgent action from governments, industries, and individuals alike if we are to protect both ecosystem health and human well-being."},
+    ]
+  },
+
+  // ── Passage 48: Urbanization and Infrastructure ───────────────────────────
+  {
+    title: "Urbanization and Infrastructure",
+    passage: [
+      {t:"text", v:"More than half the world's population now lives in cities, and this proportion is expected to grow substantially in the coming decades. Rapid "},
+      {t:"blank", word:"urbanization", hint:[0,1,2,3], def:"도시화"},
+      {t:"text", v:" places enormous "},
+      {t:"blank", word:"pressure", hint:[0,1,2,3], def:"압박"},
+      {t:"text", v:" on "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:" such as transportation, housing, and sanitation systems. City planners must "},
+      {t:"blank", word:"coordinate", hint:[0,1,2,3], def:"조율하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"investment", hint:[0,1,2,3], def:"투자"},
+      {t:"text", v:" across multiple "},
+      {t:"blank", word:"sectors", hint:[0,1,2], def:"분야들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that growing populations have "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근"},
+      {t:"text", v:" to essential "},
+      {t:"blank", word:"services", hint:[0,1,2,3], def:"서비스들"},
+      {t:"text", v:". Building cities that are both livable and sustainable requires careful long-term planning and strong cooperation between governments, private companies, and local communities."},
+    ]
+  },
+
+  // ── Passage 49: Vaccine Development and Public Health ────────────────────
+  {
+    title: "Vaccine Development and Public Health",
+    passage: [
+      {t:"text", v:"Vaccines are among the most effective public health tools ever developed, having eradicated or controlled many diseases that once caused widespread suffering. The development of a new vaccine requires years of "},
+      {t:"blank", word:"research", hint:[0,1,2], def:"연구"},
+      {t:"text", v:" and rigorous "},
+      {t:"blank", word:"clinical", hint:[0,1,2], def:"임상적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"trials", hint:[0,1,2], def:"시험들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"demonstrate", hint:[0,1,2,3], def:"입증하다"},
+      {t:"text", v:" safety and "},
+      {t:"blank", word:"efficacy", hint:[0,1,2], def:"효능"},
+      {t:"text", v:". Global health organizations work to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that vaccines are "},
+      {t:"blank", word:"distributed", hint:[0,1,2,3], def:"배포된"},
+      {t:"text", v:" "},
+      {t:"blank", word:"equitably", hint:[0,1,2,3], def:"공평하게"},
+      {t:"text", v:" across countries, but "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"barriers", hint:[0,1,2], def:"장벽들"},
+      {t:"text", v:" in access remain. Closing the gap in vaccine access between wealthy and low-income nations is a moral imperative that the global community must urgently address."},
+    ]
+  },
+
+  // ── Passage 50: The Nuclear Energy Debate ────────────────────────────────
+  {
+    title: "The Nuclear Energy Debate",
+    passage: [
+      {t:"text", v:"Nuclear energy generates large amounts of electricity with very low carbon emissions, making it a subject of renewed interest in climate policy discussions. Proponents "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장하다"},
+      {t:"text", v:" that nuclear power can "},
+      {t:"blank", word:"provide", hint:[0,1,2,3], def:"제공하다"},
+      {t:"text", v:" a "},
+      {t:"blank", word:"reliable", hint:[0,1,2], def:"안정적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"source", hint:[0,1,2], def:"원천"},
+      {t:"text", v:" of baseload energy that "},
+      {t:"blank", word:"complements", hint:[0,1,2,3], def:"보완한다"},
+      {t:"text", v:" intermittent renewables. Critics, however, "},
+      {t:"blank", word:"highlight", hint:[0,1,2], def:"강조하다"},
+      {t:"text", v:" the risks of nuclear "},
+      {t:"blank", word:"accidents", hint:[0,1,2,3], def:"사고들"},
+      {t:"text", v:" and the unresolved problem of radioactive "},
+      {t:"blank", word:"waste", hint:[0,1,2], def:"폐기물"},
+      {t:"text", v:" "},
+      {t:"blank", word:"disposal", hint:[0,1,2,3], def:"처리"},
+      {t:"text", v:". Ultimately, whether nuclear energy plays a major role in the future energy mix will depend on how societies weigh its potential benefits against its serious and long-lasting risks."},
+    ]
+  },
+
+  // ── Passage 51: The Gig Economy ──────────────────────────────────────────
+  {
+    title: "The Gig Economy",
+    passage: [
+      {t:"text", v:"The rise of digital platforms has created a new kind of labor market in which workers take on short-term contracts rather than permanent employment. This so-called gig economy offers workers greater "},
+      {t:"blank", word:"flexibility", hint:[0,1,2,3], def:"유연성"},
+      {t:"text", v:" but also leaves them without the "},
+      {t:"blank", word:"benefits", hint:[0,1,2], def:"혜택들"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"security", hint:[0,1,2], def:"안정"},
+      {t:"text", v:" of traditional employment, such as "},
+      {t:"blank", word:"stable", hint:[0,1,2], def:"안정적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"income", hint:[0,1,2], def:"소득"},
+      {t:"text", v:" and health insurance. Researchers "},
+      {t:"blank", word:"emphasize", hint:[0,1,2], def:"강조하다"},
+      {t:"text", v:" that existing "},
+      {t:"blank", word:"labor", hint:[0,1], def:"노동"},
+      {t:"text", v:" "},
+      {t:"blank", word:"legislation", hint:[0,1,2,3], def:"법률"},
+      {t:"text", v:" was not "},
+      {t:"blank", word:"designed", hint:[0,1,2], def:"설계된"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"protect", hint:[0,1,2], def:"보호하다"},
+      {t:"text", v:" gig workers. Governments must therefore update their labor laws to ensure that all workers, regardless of employment type, have access to basic protections and economic security."},
+    ]
+  },
+
+  // ── Passage 52: Space Exploration and Resources ───────────────────────────
+  {
+    title: "Space Exploration and Resources",
+    passage: [
+      {t:"text", v:"Interest in space exploration has surged in recent years, driven both by government space agencies and a growing number of private companies. Scientists and entrepreneurs are exploring the possibility of "},
+      {t:"blank", word:"extracting", hint:[0,1,2,3], def:"추출하는"},
+      {t:"text", v:" "},
+      {t:"blank", word:"valuable", hint:[0,1,2], def:"가치 있는"},
+      {t:"text", v:" "},
+      {t:"blank", word:"minerals", hint:[0,1,2], def:"광물들"},
+      {t:"text", v:" from asteroids and the moon. However, experts warn that the "},
+      {t:"blank", word:"legal", hint:[0,1], def:"법적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"framework", hint:[0,1,2,3], def:"틀"},
+      {t:"text", v:" governing space "},
+      {t:"blank", word:"resources", hint:[0,1,2], def:"자원들"},
+      {t:"text", v:" is "},
+      {t:"blank", word:"inadequate", hint:[0,1,2,3], def:"불충분한"},
+      {t:"text", v:" and must be "},
+      {t:"blank", word:"updated", hint:[0,1,2], def:"갱신된"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"prevent", hint:[0,1,2], def:"방지하다"},
+      {t:"text", v:" conflicts over ownership. The decisions made today about how to govern the use of space resources will shape the future of international relations and space commerce for generations to come."},
+    ]
+  },
+
+  // ── Passage 53: Mental Health Awareness ──────────────────────────────────
+  {
+    title: "Mental Health Awareness",
+    passage: [
+      {t:"text", v:"Mental health is increasingly recognized as a critical component of overall well-being, yet millions of people worldwide still lack access to adequate care. Governments are working to "},
+      {t:"blank", word:"integrate", hint:[0,1,2], def:"통합하다"},
+      {t:"text", v:" mental health "},
+      {t:"blank", word:"services", hint:[0,1,2,3], def:"서비스들"},
+      {t:"text", v:" into primary healthcare systems and to "},
+      {t:"blank", word:"reduce", hint:[0,1,2], def:"줄이다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"stigma", hint:[0,1,2], def:"낙인"},
+      {t:"text", v:" that prevents many people from seeking help. Research "},
+      {t:"blank", word:"indicates", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that early "},
+      {t:"blank", word:"intervention", hint:[0,1,2,3], def:"개입"},
+      {t:"text", v:" can "},
+      {t:"blank", word:"significantly", hint:[0,1,2,3], def:"상당히"},
+      {t:"text", v:" improve "},
+      {t:"blank", word:"outcomes", hint:[0,1,2], def:"결과들"},
+      {t:"text", v:" for individuals with mental health conditions. A world in which mental health is treated with the same seriousness as physical health would be more productive, more compassionate, and more just."},
+    ]
+  },
+
+  // ── Passage 54: Income Inequality ────────────────────────────────────────
+  {
+    title: "Income Inequality",
+    passage: [
+      {t:"text", v:"Rising income inequality is one of the most widely debated economic issues of the twenty-first century. Data shows that the gap between the highest and lowest earners has "},
+      {t:"blank", word:"widened", hint:[0,1,2], def:"벌어졌다"},
+      {t:"text", v:" in many countries, and researchers "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that this "},
+      {t:"blank", word:"trend", hint:[0,1,2], def:"추세"},
+      {t:"text", v:" undermines "},
+      {t:"blank", word:"social", hint:[0,1,2], def:"사회적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"cohesion", hint:[0,1,2], def:"결속"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"limits", hint:[0,1,2], def:"제한한다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"mobility", hint:[0,1,2], def:"이동성"},
+      {t:"text", v:". Policy responses include progressive "},
+      {t:"blank", word:"taxation", hint:[0,1,2,3], def:"과세"},
+      {t:"text", v:" and expanded "},
+      {t:"blank", word:"investment", hint:[0,1,2,3], def:"투자"},
+      {t:"text", v:" in education and healthcare. Addressing inequality requires not just redistributing income but also creating conditions in which all people have a genuine opportunity to succeed."},
+    ]
+  },
+
+  // ── Passage 55: Deforestation and Biodiversity ────────────────────────────
+  {
+    title: "Deforestation and Biodiversity",
+    passage: [
+      {t:"text", v:"Forests cover nearly a third of the Earth's land surface and are home to more than half of the world's terrestrial species. Deforestation, driven largely by agriculture and logging, is "},
+      {t:"blank", word:"destroying", hint:[0,1,2,3], def:"파괴하고 있다"},
+      {t:"text", v:" these "},
+      {t:"blank", word:"critical", hint:[0,1,2], def:"중요한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"habitats", hint:[0,1,2], def:"서식지들"},
+      {t:"text", v:" at an alarming rate, leading to "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" losses in "},
+      {t:"blank", word:"biodiversity", hint:[0,1,2,3], def:"생물다양성"},
+      {t:"text", v:". Governments and international organizations are working to "},
+      {t:"blank", word:"implement", hint:[0,1,2,3], def:"시행하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"policies", hint:[0,1,2], def:"정책들"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"protect", hint:[0,1,2], def:"보호하다"},
+      {t:"text", v:" remaining forests and "},
+      {t:"blank", word:"restore", hint:[0,1,2], def:"복원하다"},
+      {t:"text", v:" degraded ecosystems. Preserving the world's forests is not only a matter of environmental concern but also of long-term human survival, since forests regulate the climate and provide water for billions of people."},
+    ]
+  },
+
+  // ── Passage 56: Autonomous Vehicles ──────────────────────────────────────
+  {
+    title: "Autonomous Vehicles",
+    passage: [
+      {t:"text", v:"Self-driving vehicles represent one of the most transformative technological developments of recent years, promising to reshape how people and goods move through cities. Engineers have "},
+      {t:"blank", word:"demonstrated", hint:[0,1,2,3], def:"입증했다"},
+      {t:"text", v:" that autonomous systems can "},
+      {t:"blank", word:"navigate", hint:[0,1,2], def:"운행하다"},
+      {t:"text", v:" complex road environments, but "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"challenges", hint:[0,1,2], def:"도전들"},
+      {t:"text", v:" in safety, "},
+      {t:"blank", word:"liability", hint:[0,1,2], def:"책임"},
+      {t:"text", v:", and public "},
+      {t:"blank", word:"acceptance", hint:[0,1,2,3], def:"수용"},
+      {t:"text", v:" remain. Regulators must "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"수립하다"},
+      {t:"text", v:" clear "},
+      {t:"blank", word:"standards", hint:[0,1,2,3], def:"기준들"},
+      {t:"text", v:" before autonomous vehicles can be "},
+      {t:"blank", word:"deployed", hint:[0,1,2], def:"배치될"},
+      {t:"text", v:" widely. Whether autonomous vehicles ultimately make roads safer and more efficient will depend on how well regulators, manufacturers, and the public work together to address these complex challenges."},
+    ]
+  },
+
+  // ── Passage 57: Food Security and Agriculture ─────────────────────────────
+  {
+    title: "Food Security and Agriculture",
+    passage: [
+      {t:"text", v:"Feeding a global population that is expected to reach ten billion by mid-century is one of the most pressing challenges humanity faces. Agricultural scientists are developing new "},
+      {t:"blank", word:"techniques", hint:[0,1,2], def:"기술들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"increase", hint:[0,1,2,3], def:"늘리다"},
+      {t:"text", v:" crop "},
+      {t:"blank", word:"yields", hint:[0,1,2], def:"수확량"},
+      {t:"text", v:" while "},
+      {t:"blank", word:"reducing", hint:[0,1,2], def:"줄이면서"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"environmental", hint:[0,1,2,3], def:"환경적인"},
+      {t:"text", v:" impact of farming. Researchers "},
+      {t:"blank", word:"emphasize", hint:[0,1,2], def:"강조하다"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"sustainable", hint:[0,1,2,3], def:"지속 가능한"},
+      {t:"text", v:" agricultural practices must be "},
+      {t:"blank", word:"adopted", hint:[0,1,2], def:"채택되다"},
+      {t:"text", v:" globally to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" long-term food "},
+      {t:"blank", word:"security", hint:[0,1,2], def:"안보"},
+      {t:"text", v:". Achieving food security for all will require transforming global food systems in ways that are productive, equitable, and environmentally responsible at the same time."},
+    ]
+  },
+
+  // ── Passage 58: Immigration Policy ───────────────────────────────────────
+  {
+    title: "Immigration Policy",
+    passage: [
+      {t:"text", v:"Immigration policy is one of the most complex and politically sensitive areas of governance in many countries today. Governments must balance the "},
+      {t:"blank", word:"economic", hint:[0,1,2], def:"경제적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"benefits", hint:[0,1,2], def:"혜택들"},
+      {t:"text", v:" of immigration, such as filling labor "},
+      {t:"blank", word:"shortages", hint:[0,1,2,3], def:"부족"},
+      {t:"text", v:", with social concerns about "},
+      {t:"blank", word:"integration", hint:[0,1,2,3], def:"통합"},
+      {t:"text", v:" and cultural "},
+      {t:"blank", word:"cohesion", hint:[0,1,2], def:"결속"},
+      {t:"text", v:". Researchers "},
+      {t:"blank", word:"indicate", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that well-managed immigration can "},
+      {t:"blank", word:"contribute", hint:[0,1,2,3], def:"기여하다"},
+      {t:"text", v:" positively to host societies, but that "},
+      {t:"blank", word:"adequate", hint:[0,1,2], def:"충분한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"support", hint:[0,1,2], def:"지원"},
+      {t:"text", v:" systems are essential. Finding policies that are both humane and effective is a challenge that requires honest conversation, accurate data, and a willingness to consider a wide range of perspectives."},
+    ]
+  },
+
+  // ── Passage 59: Cybersecurity Threats ────────────────────────────────────
+  {
+    title: "Cybersecurity Threats",
+    passage: [
+      {t:"text", v:"As the world becomes more dependent on digital systems, the threat posed by cyberattacks has grown dramatically. Hackers are constantly developing new methods to "},
+      {t:"blank", word:"exploit", hint:[0,1,2], def:"악용하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"vulnerabilities", hint:[0,1,2,3], def:"취약점들"},
+      {t:"text", v:" in computer networks, and attacks on "},
+      {t:"blank", word:"critical", hint:[0,1,2], def:"중요한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:" such as power grids and hospitals can have "},
+      {t:"blank", word:"severe", hint:[0,1,2], def:"심각한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"consequences", hint:[0,1,2,3], def:"결과들"},
+      {t:"text", v:". Governments and organizations must "},
+      {t:"blank", word:"invest", hint:[0,1,2], def:"투자하다"},
+      {t:"text", v:" in "},
+      {t:"blank", word:"robust", hint:[0,1,2], def:"견고한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"security", hint:[0,1,2], def:"보안"},
+      {t:"text", v:" measures and "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that staff are "},
+      {t:"blank", word:"trained", hint:[0,1,2], def:"훈련된"},
+      {t:"text", v:" to identify threats. Building a more secure digital world requires sustained international cooperation, since cybercriminals frequently operate across national borders and cannot be stopped by any single country acting alone."},
+    ]
+  },
+
+  // ── Passage 60: Climate Refugees ─────────────────────────────────────────
+  {
+    title: "Climate Refugees",
+    passage: [
+      {t:"text", v:"Rising sea levels, extreme weather, and prolonged droughts are forcing growing numbers of people to abandon their homes, creating a new category of displacement known as climate migration. International law does not currently "},
+      {t:"blank", word:"recognize", hint:[0,1,2], def:"인정하다"},
+      {t:"text", v:" climate refugees as a "},
+      {t:"blank", word:"distinct", hint:[0,1,2], def:"별개의"},
+      {t:"text", v:" "},
+      {t:"blank", word:"category", hint:[0,1,2,3], def:"범주"},
+      {t:"text", v:", leaving "},
+      {t:"blank", word:"displaced", hint:[0,1,2], def:"이주된"},
+      {t:"text", v:" populations without clear "},
+      {t:"blank", word:"legal", hint:[0,1], def:"법적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"protection", hint:[0,1,2,3], def:"보호"},
+      {t:"text", v:". Researchers argue that new "},
+      {t:"blank", word:"frameworks", hint:[0,1,2,3], def:"틀들"},
+      {t:"text", v:" are urgently needed to "},
+      {t:"blank", word:"address", hint:[0,1,2], def:"다루다"},
+      {t:"text", v:" this "},
+      {t:"blank", word:"emerging", hint:[0,1,2], def:"새롭게 나타나는"},
+      {t:"text", v:" crisis. As climate change intensifies, the number of people forced to move will increase dramatically, making it one of the defining humanitarian challenges of the coming century."},
+    ]
+  },
+
+  // ── Passage 61: Pharmaceutical Pricing ───────────────────────────────────
+  {
+    title: "Pharmaceutical Pricing",
+    passage: [
+      {t:"text", v:"The high cost of prescription drugs is a major concern for patients, healthcare systems, and governments around the world. Pharmaceutical companies "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that high prices are necessary to "},
+      {t:"blank", word:"recover", hint:[0,1,2], def:"회수하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"substantial", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" costs of "},
+      {t:"blank", word:"research", hint:[0,1,2], def:"연구"},
+      {t:"text", v:" and development and to fund future "},
+      {t:"blank", word:"innovation", hint:[0,1,2,3], def:"혁신"},
+      {t:"text", v:". Critics, however, "},
+      {t:"blank", word:"contend", hint:[0,1,2], def:"주장하다"},
+      {t:"text", v:" that pricing practices are not "},
+      {t:"blank", word:"transparent", hint:[0,1,2,3], def:"투명한"},
+      {t:"text", v:" and that essential medicines should be "},
+      {t:"blank", word:"accessible", hint:[0,1,2,3], def:"접근 가능한"},
+      {t:"text", v:" to all patients regardless of "},
+      {t:"blank", word:"income", hint:[0,1,2], def:"소득"},
+      {t:"text", v:". Finding a sustainable model that rewards innovation while ensuring broad access to medicines is one of the most urgent challenges facing global health policy today."},
+    ]
+  },
+
+  // ── Passage 62: Water Scarcity ────────────────────────────────────────────
+  {
+    title: "Water Scarcity",
+    passage: [
+      {t:"text", v:"Fresh water is one of the world's most essential yet increasingly scarce resources, with demand rising as populations grow and climate change disrupts rainfall patterns. Researchers "},
+      {t:"blank", word:"estimate", hint:[0,1,2], def:"추정한다"},
+      {t:"text", v:" that billions of people already live in areas of "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" water "},
+      {t:"blank", word:"stress", hint:[0,1,2], def:"부족"},
+      {t:"text", v:", and the problem is expected to "},
+      {t:"blank", word:"worsen", hint:[0,1,2], def:"악화되다"},
+      {t:"text", v:" without "},
+      {t:"blank", word:"coordinated", hint:[0,1,2,3], def:"조율된"},
+      {t:"text", v:" action. Governments must "},
+      {t:"blank", word:"invest", hint:[0,1,2], def:"투자하다"},
+      {t:"text", v:" in water "},
+      {t:"blank", word:"conservation", hint:[0,1,2,3], def:"보존"},
+      {t:"text", v:" and improve "},
+      {t:"blank", word:"management", hint:[0,1,2,3], def:"관리"},
+      {t:"text", v:" of existing "},
+      {t:"blank", word:"resources", hint:[0,1,2], def:"자원들"},
+      {t:"text", v:". Ensuring access to clean water for all people will require both technological solutions and international agreements that treat water as a shared global commons rather than a purely commercial commodity."},
+    ]
+  },
+
+  // ── Passage 63: AI and Employment ────────────────────────────────────────
+  {
+    title: "Artificial Intelligence and Employment",
+    passage: [
+      {t:"text", v:"Artificial intelligence and automation are transforming labor markets around the world, raising important questions about the future of work. Some economists "},
+      {t:"blank", word:"predict", hint:[0,1,2], def:"예측하다"},
+      {t:"text", v:" that AI will "},
+      {t:"blank", word:"displace", hint:[0,1,2], def:"대체하다"},
+      {t:"text", v:" millions of workers, particularly in "},
+      {t:"blank", word:"routine", hint:[0,1,2], def:"반복적인"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"manual", hint:[0,1,2], def:"수동의"},
+      {t:"text", v:" occupations, while others argue that new technologies will "},
+      {t:"blank", word:"generate", hint:[0,1,2,3], def:"창출하다"},
+      {t:"text", v:" new types of "},
+      {t:"blank", word:"employment", hint:[0,1,2,3], def:"고용"},
+      {t:"text", v:". Policymakers must therefore "},
+      {t:"blank", word:"invest", hint:[0,1,2], def:"투자하다"},
+      {t:"text", v:" in "},
+      {t:"blank", word:"retraining", hint:[0,1,2,3], def:"재훈련"},
+      {t:"text", v:" programs and "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that the benefits of automation are "},
+      {t:"blank", word:"distributed", hint:[0,1,2,3], def:"분배된"},
+      {t:"text", v:" broadly. The decisions governments and businesses make today about managing the AI transition will have profound consequences for the living standards and opportunities of workers for decades to come."},
+    ]
+  },
+
+  // ── Passage 64: Media Literacy ────────────────────────────────────────────
+  {
+    title: "Media Literacy",
+    passage: [
+      {t:"text", v:"The rapid spread of misinformation online has made media literacy one of the most important skills for citizens in the digital age. Researchers "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that many people lack the skills to "},
+      {t:"blank", word:"evaluate", hint:[0,1,2,3], def:"평가하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"credibility", hint:[0,1,2,3], def:"신뢰성"},
+      {t:"text", v:" of online sources and to "},
+      {t:"blank", word:"distinguish", hint:[0,1,2,3], def:"구별하다"},
+      {t:"text", v:" between "},
+      {t:"blank", word:"reliable", hint:[0,1,2], def:"신뢰할 수 있는"},
+      {t:"text", v:" journalism and "},
+      {t:"blank", word:"deliberately", hint:[0,1,2,3], def:"의도적으로"},
+      {t:"text", v:" misleading content. Schools are increasingly incorporating media literacy into their "},
+      {t:"blank", word:"curricula", hint:[0,1,2], def:"교육과정"},
+      {t:"text", v:" to help students "},
+      {t:"blank", word:"navigate", hint:[0,1,2], def:"헤쳐나가다"},
+      {t:"text", v:" complex information environments. A society in which citizens can critically assess the information they consume is more resilient to manipulation and better equipped to make informed democratic decisions."},
+    ]
+  },
+
+  // ── Passage 65: Gender Equality in the Workplace ──────────────────────────
+  {
+    title: "Gender Equality in the Workplace",
+    passage: [
+      {t:"text", v:"Despite significant progress in recent decades, gender inequality in the workplace remains a persistent challenge in many countries and industries. Data consistently shows that women earn less than men for "},
+      {t:"blank", word:"comparable", hint:[0,1,2,3], def:"비슷한"},
+      {t:"text", v:" work and are "},
+      {t:"blank", word:"underrepresented", hint:[0,1,2,3], def:"과소 대표된"},
+      {t:"text", v:" in senior "},
+      {t:"blank", word:"leadership", hint:[0,1,2,3], def:"리더십"},
+      {t:"text", v:" positions. Researchers "},
+      {t:"blank", word:"identify", hint:[0,1,2], def:"파악하다"},
+      {t:"text", v:" structural "},
+      {t:"blank", word:"barriers", hint:[0,1,2], def:"장벽들"},
+      {t:"text", v:" such as lack of affordable childcare and "},
+      {t:"blank", word:"unconscious", hint:[0,1,2,3], def:"무의식적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"bias", hint:[0,1], def:"편견"},
+      {t:"text", v:" in hiring as key "},
+      {t:"blank", word:"factors", hint:[0,1,2], def:"요인들"},
+      {t:"text", v:". Achieving genuine equality in the workplace requires sustained commitment from both employers and governments to create conditions in which all people can contribute their full potential."},
+    ]
+  },
+
+  // ── Passage 66: Student Loan Debt ────────────────────────────────────────
+  {
+    title: "Student Loan Debt",
+    passage: [
+      {t:"text", v:"Rising tuition costs have left millions of graduates in many countries burdened with significant debt, raising questions about the value and accessibility of higher education. Researchers "},
+      {t:"blank", word:"indicate", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that heavy debt can "},
+      {t:"blank", word:"delay", hint:[0,1], def:"늦추다"},
+      {t:"text", v:" important life decisions such as buying a home or starting a family, and can "},
+      {t:"blank", word:"limit", hint:[0,1,2], def:"제한하다"},
+      {t:"text", v:" graduates' ability to "},
+      {t:"blank", word:"pursue", hint:[0,1,2], def:"추구하다"},
+      {t:"text", v:" lower-paying but socially "},
+      {t:"blank", word:"valuable", hint:[0,1,2], def:"가치 있는"},
+      {t:"text", v:" careers. Governments are considering a range of "},
+      {t:"blank", word:"options", hint:[0,1,2], def:"선택지들"},
+      {t:"text", v:", from loan "},
+      {t:"blank", word:"forgiveness", hint:[0,1,2,3], def:"탕감"},
+      {t:"text", v:" programs to "},
+      {t:"blank", word:"increased", hint:[0,1,2,3], def:"늘어난"},
+      {t:"text", v:" public "},
+      {t:"blank", word:"funding", hint:[0,1,2], def:"자금 지원"},
+      {t:"text", v:" for universities. Making higher education both affordable and high-quality is essential to ensuring that it remains a path to opportunity rather than a source of long-term financial hardship."},
+    ]
+  },
+
+  // ── Passage 67: Antibiotic Resistance ────────────────────────────────────
+  {
+    title: "Antibiotic Resistance",
+    passage: [
+      {t:"text", v:"Antibiotic resistance is one of the most serious threats to global public health, as bacteria are rapidly evolving to survive treatments that once reliably eliminated them. The overuse and misuse of antibiotics in both "},
+      {t:"blank", word:"human", hint:[0,1,2], def:"인간"},
+      {t:"text", v:" medicine and "},
+      {t:"blank", word:"livestock", hint:[0,1,2], def:"가축"},
+      {t:"text", v:" farming has "},
+      {t:"blank", word:"accelerated", hint:[0,1,2,3], def:"가속화했다"},
+      {t:"text", v:" this process. Researchers warn that without "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" changes in prescribing practices and the "},
+      {t:"blank", word:"development", hint:[0,1,2,3], def:"개발"},
+      {t:"text", v:" of new drugs, common infections could become "},
+      {t:"blank", word:"untreatable", hint:[0,1,2,3], def:"치료 불가능한"},
+      {t:"text", v:". International cooperation is "},
+      {t:"blank", word:"essential", hint:[0,1,2], def:"필수적인"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"coordinate", hint:[0,1,2,3], def:"조율하다"},
+      {t:"text", v:" a "},
+      {t:"blank", word:"global", hint:[0,1,2], def:"전 세계적인"},
+      {t:"text", v:" response. Tackling antibiotic resistance demands urgent action at every level of society, from individual patients and doctors to national governments and international health organizations."},
+    ]
+  },
+
+  // ── Passage 68: Smart Cities ──────────────────────────────────────────────
+  {
+    title: "Smart Cities",
+    passage: [
+      {t:"text", v:"Smart city technology uses digital tools and data to improve the efficiency of urban services and enhance the quality of life for residents. Sensors and connected devices "},
+      {t:"blank", word:"enable", hint:[0,1], def:"가능하게 하다"},
+      {t:"text", v:" city managers to "},
+      {t:"blank", word:"monitor", hint:[0,1,2], def:"모니터하다"},
+      {t:"text", v:" traffic, energy use, and waste "},
+      {t:"blank", word:"management", hint:[0,1,2,3], def:"관리"},
+      {t:"text", v:" in "},
+      {t:"blank", word:"real", hint:[0,1,2], def:"실시간"},
+      {t:"text", v:" time. However, the collection of large amounts of citizen "},
+      {t:"blank", word:"data", hint:[0,1], def:"데이터"},
+      {t:"text", v:" raises important "},
+      {t:"blank", word:"concerns", hint:[0,1,2], def:"우려들"},
+      {t:"text", v:" about "},
+      {t:"blank", word:"privacy", hint:[0,1,2], def:"개인정보"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"security", hint:[0,1,2], def:"보안"},
+      {t:"text", v:". Governments must "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"수립하다"},
+      {t:"text", v:" clear "},
+      {t:"blank", word:"regulations", hint:[0,1,2,3], def:"규정들"},
+      {t:"text", v:" to ensure that smart city technologies serve all residents equally. Building truly smart cities requires not just advanced technology but also strong democratic governance and a firm commitment to protecting citizens' rights."},
+    ]
+  },
+
+  // ── Passage 69: Corporate Social Responsibility ───────────────────────────
+  {
+    title: "Corporate Social Responsibility",
+    passage: [
+      {t:"text", v:"Corporate social responsibility refers to the idea that businesses have obligations not only to their shareholders but also to society and the environment. Many companies now "},
+      {t:"blank", word:"publish", hint:[0,1,2], def:"발표하다"},
+      {t:"text", v:" annual "},
+      {t:"blank", word:"reports", hint:[0,1,2], def:"보고서들"},
+      {t:"text", v:" detailing their "},
+      {t:"blank", word:"environmental", hint:[0,1,2,3], def:"환경적인"},
+      {t:"text", v:" and social "},
+      {t:"blank", word:"impact", hint:[0,1,2], def:"영향"},
+      {t:"text", v:", and some voluntarily "},
+      {t:"blank", word:"commit", hint:[0,1,2], def:"헌신하다"},
+      {t:"text", v:" to reducing their carbon "},
+      {t:"blank", word:"emissions", hint:[0,1,2,3], def:"배출"},
+      {t:"text", v:". Critics, however, argue that voluntary "},
+      {t:"blank", word:"measures", hint:[0,1,2], def:"조치들"},
+      {t:"text", v:" are "},
+      {t:"blank", word:"insufficient", hint:[0,1,2,3], def:"불충분한"},
+      {t:"text", v:" and that "},
+      {t:"blank", word:"mandatory", hint:[0,1,2,3], def:"의무적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"regulations", hint:[0,1,2,3], def:"규정들"},
+      {t:"text", v:" are needed to hold businesses "},
+      {t:"blank", word:"accountable", hint:[0,1,2,3], def:"책임 있는"},
+      {t:"text", v:". The debate over how much responsibility companies should bear for social and environmental outcomes is central to discussions about the role of business in a democratic society."},
+    ]
+  },
+
+  // ── Passage 70: Cultural Heritage Preservation ────────────────────────────
+  {
+    title: "Cultural Heritage Preservation",
+    passage: [
+      {t:"text", v:"Cultural heritage sites connect communities to their history and provide invaluable resources for education, tourism, and national identity. However, many of these sites are threatened by urbanization, armed "},
+      {t:"blank", word:"conflict", hint:[0,1,2], def:"분쟁"},
+      {t:"text", v:", and the effects of climate change, which can "},
+      {t:"blank", word:"damage", hint:[0,1,2], def:"훼손하다"},
+      {t:"text", v:" or "},
+      {t:"blank", word:"destroy", hint:[0,1,2], def:"파괴하다"},
+      {t:"text", v:" irreplaceable "},
+      {t:"blank", word:"structures", hint:[0,1,2,3], def:"구조물들"},
+      {t:"text", v:". International organizations work to "},
+      {t:"blank", word:"identify", hint:[0,1,2], def:"파악하다"},
+      {t:"text", v:" sites at risk and "},
+      {t:"blank", word:"coordinate", hint:[0,1,2,3], def:"조율하다"},
+      {t:"text", v:" efforts to "},
+      {t:"blank", word:"preserve", hint:[0,1,2,3], def:"보존하다"},
+      {t:"text", v:" them through restoration and "},
+      {t:"blank", word:"documentation", hint:[0,1,2,3], def:"기록화"},
+      {t:"text", v:". Protecting cultural heritage is ultimately about ensuring that future generations have the opportunity to learn from and connect with the achievements of those who came before them."},
+    ]
+  },
+
+  // ── Passage 71: Renewable Ocean Energy ───────────────────────────────────
+  {
+    title: "Renewable Ocean Energy",
+    passage: [
+      {t:"text", v:"The world's oceans contain vast amounts of untapped energy in the form of waves, tides, and temperature differences between surface and deep water. Researchers are developing "},
+      {t:"blank", word:"innovative", hint:[0,1,2,3], def:"혁신적인"},
+      {t:"text", v:" technologies to "},
+      {t:"blank", word:"harness", hint:[0,1,2], def:"활용하다"},
+      {t:"text", v:" this "},
+      {t:"blank", word:"potential", hint:[0,1,2,3], def:"잠재력"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"convert", hint:[0,1,2], def:"전환하다"},
+      {t:"text", v:" it into clean electricity. Unlike solar and wind, ocean energy is highly "},
+      {t:"blank", word:"predictable", hint:[0,1,2,3], def:"예측 가능한"},
+      {t:"text", v:", making it an "},
+      {t:"blank", word:"attractive", hint:[0,1,2,3], def:"매력적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"complement", hint:[0,1,2,3], def:"보완물"},
+      {t:"text", v:" to other renewable "},
+      {t:"blank", word:"sources", hint:[0,1,2], def:"원천들"},
+      {t:"text", v:". Significant "},
+      {t:"blank", word:"investment", hint:[0,1,2,3], def:"투자"},
+      {t:"text", v:" is still needed to "},
+      {t:"blank", word:"scale", hint:[0,1,2], def:"확대하다"},
+      {t:"text", v:" these technologies. If ocean energy can be made commercially viable, it could play a major role in decarbonizing the global energy system while protecting the marine environments on which billions of people depend."},
+    ]
+  },
+
+  // ── Passage 72: Prison Reform ─────────────────────────────────────────────
+  {
+    title: "Prison Reform",
+    passage: [
+      {t:"text", v:"High rates of incarceration and recidivism in many countries have prompted researchers and policymakers to call for fundamental changes to how criminal justice systems operate. Evidence "},
+      {t:"blank", word:"suggests", hint:[0,1,2,3], def:"시사한다"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"rehabilitation", hint:[0,1,2,3], def:"재활"},
+      {t:"text", v:"-focused approaches, which emphasize education, "},
+      {t:"blank", word:"counseling", hint:[0,1,2,3], def:"상담"},
+      {t:"text", v:", and vocational "},
+      {t:"blank", word:"training", hint:[0,1,2], def:"훈련"},
+      {t:"text", v:", are more "},
+      {t:"blank", word:"effective", hint:[0,1,2,3], def:"효과적인"},
+      {t:"text", v:" at reducing reoffending than "},
+      {t:"blank", word:"punitive", hint:[0,1,2], def:"처벌적인"},
+      {t:"text", v:" measures alone. Countries with the lowest "},
+      {t:"blank", word:"recidivism", hint:[0,1,2,3], def:"재범"},
+      {t:"text", v:" rates tend to invest more in "},
+      {t:"blank", word:"support", hint:[0,1,2], def:"지원"},
+      {t:"text", v:" for "},
+      {t:"blank", word:"individuals", hint:[0,1,2,3], def:"개인들"},
+      {t:"text", v:" returning to society. A justice system that prioritizes rehabilitation over punishment is not only more humane but also more cost-effective and more successful at creating safer communities in the long term."},
+    ]
+  },
+
+  // ── Passage 73: Childhood Obesity ────────────────────────────────────────
+  {
+    title: "Childhood Obesity",
+    passage: [
+      {t:"text", v:"Childhood obesity rates have risen sharply in many countries over the past three decades, creating serious long-term health consequences for affected individuals and significant costs for healthcare systems. Researchers "},
+      {t:"blank", word:"identify", hint:[0,1,2], def:"파악한다"},
+      {t:"text", v:" poor diet, "},
+      {t:"blank", word:"insufficient", hint:[0,1,2,3], def:"불충분한"},
+      {t:"text", v:" physical activity, and "},
+      {t:"blank", word:"environmental", hint:[0,1,2,3], def:"환경적인"},
+      {t:"text", v:" factors as the "},
+      {t:"blank", word:"primary", hint:[0,1,2], def:"주요한"},
+      {t:"text", v:" "},
+      {t:"blank", word:"drivers", hint:[0,1,2], def:"요인들"},
+      {t:"text", v:" of this trend. Governments are implementing "},
+      {t:"blank", word:"policies", hint:[0,1,2], def:"정책들"},
+      {t:"text", v:" such as "},
+      {t:"blank", word:"restrictions", hint:[0,1,2,3], def:"제한들"},
+      {t:"text", v:" on advertising unhealthy food to children and "},
+      {t:"blank", word:"improved", hint:[0,1,2], def:"개선된"},
+      {t:"text", v:" nutrition "},
+      {t:"blank", word:"standards", hint:[0,1,2,3], def:"기준들"},
+      {t:"text", v:" in schools. Tackling childhood obesity requires a comprehensive approach that involves families, schools, food companies, and governments working together toward the shared goal of healthier future generations."},
+    ]
+  },
+
+  // ── Passage 74: Financial Literacy ────────────────────────────────────────
+  {
+    title: "Financial Literacy",
+    passage: [
+      {t:"text", v:"Financial literacy — the ability to understand and manage personal finances — is increasingly recognized as an essential life skill in a complex modern economy. Research "},
+      {t:"blank", word:"indicates", hint:[0,1,2], def:"나타낸다"},
+      {t:"text", v:" that low levels of financial literacy are "},
+      {t:"blank", word:"associated", hint:[0,1,2,3], def:"연관된"},
+      {t:"text", v:" with higher rates of personal "},
+      {t:"blank", word:"debt", hint:[0,1], def:"부채"},
+      {t:"text", v:" and lower levels of "},
+      {t:"blank", word:"retirement", hint:[0,1,2,3], def:"은퇴"},
+      {t:"text", v:" "},
+      {t:"blank", word:"savings", hint:[0,1,2], def:"저축"},
+      {t:"text", v:". Schools in many countries are "},
+      {t:"blank", word:"incorporating", hint:[0,1,2,3], def:"통합시키고 있다"},
+      {t:"text", v:" personal finance into their "},
+      {t:"blank", word:"curricula", hint:[0,1,2], def:"교육과정"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"equip", hint:[0,1,2], def:"갖추게 하다"},
+      {t:"text", v:" students with practical skills for "},
+      {t:"blank", word:"managing", hint:[0,1,2], def:"관리하는"},
+      {t:"text", v:" money. Improving financial literacy across society is one of the most cost-effective ways to reduce poverty and improve economic well-being for individuals and families."},
+    ]
+  },
+
+  // ── Passage 75: Community Policing ────────────────────────────────────────
+  {
+    title: "Community Policing",
+    passage: [
+      {t:"text", v:"Community policing is an approach to law enforcement that emphasizes building relationships between police officers and the communities they serve. Research "},
+      {t:"blank", word:"suggests", hint:[0,1,2,3], def:"시사한다"},
+      {t:"text", v:" that when officers "},
+      {t:"blank", word:"engage", hint:[0,1,2], def:"관계 맺다"},
+      {t:"text", v:" regularly with residents and are "},
+      {t:"blank", word:"responsive", hint:[0,1,2,3], def:"반응하는"},
+      {t:"text", v:" to their "},
+      {t:"blank", word:"concerns", hint:[0,1,2], def:"우려들"},
+      {t:"text", v:", levels of "},
+      {t:"blank", word:"trust", hint:[0,1,2], def:"신뢰"},
+      {t:"text", v:" in law enforcement "},
+      {t:"blank", word:"increase", hint:[0,1,2,3], def:"증가한다"},
+      {t:"text", v:" and crime rates "},
+      {t:"blank", word:"decline", hint:[0,1,2], def:"감소한다"},
+      {t:"text", v:". Effective community policing also requires that officers "},
+      {t:"blank", word:"reflect", hint:[0,1,2], def:"반영하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"diversity", hint:[0,1,2,3], def:"다양성"},
+      {t:"text", v:" of the communities they "},
+      {t:"blank", word:"serve", hint:[0,1,2], def:"섬기다"},
+      {t:"text", v:". Building strong relationships between police and communities is not a quick fix, but it is one of the most reliable paths to reducing both crime and the fear of crime over the long term."},
+    ]
+  },
+
+  // ── Passage 76: Animal Testing in Research ────────────────────────────────
+  {
+    title: "Animal Testing in Research",
+    passage: [
+      {t:"text", v:"The use of animals in scientific and medical research has long been a subject of ethical debate, with strong views on all sides. Scientists argue that animal testing has been "},
+      {t:"blank", word:"essential", hint:[0,1,2], def:"필수적인"},
+      {t:"text", v:" for "},
+      {t:"blank", word:"developing", hint:[0,1,2,3], def:"개발하는"},
+      {t:"text", v:" life-saving medicines and "},
+      {t:"blank", word:"understanding", hint:[0,1,2,3], def:"이해하는"},
+      {t:"text", v:" complex "},
+      {t:"blank", word:"biological", hint:[0,1,2,3], def:"생물학적인"},
+      {t:"text", v:" processes. Animal welfare advocates, however, "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that causing "},
+      {t:"blank", word:"suffering", hint:[0,1,2,3], def:"고통"},
+      {t:"text", v:" to animals is "},
+      {t:"blank", word:"morally", hint:[0,1,2], def:"도덕적으로"},
+      {t:"text", v:" "},
+      {t:"blank", word:"unjustifiable", hint:[0,1,2,3], def:"정당화할 수 없는"},
+      {t:"text", v:" and that "},
+      {t:"blank", word:"alternatives", hint:[0,1,2,3], def:"대안들"},
+      {t:"text", v:" such as cell cultures and computer "},
+      {t:"blank", word:"models", hint:[0,1,2], def:"모델들"},
+      {t:"text", v:" should be used. As new technologies make alternatives increasingly viable, the scientific community faces growing pressure to reduce its reliance on animals in research."},
+    ]
+  },
+
+  // ── Passage 77: Telemedicine ──────────────────────────────────────────────
+  {
+    title: "Telemedicine",
+    passage: [
+      {t:"text", v:"Telemedicine — the delivery of healthcare services through digital technology — has expanded dramatically in recent years, offering new opportunities to improve access to medical care. Patients in rural or "},
+      {t:"blank", word:"remote", hint:[0,1,2], def:"외딴"},
+      {t:"text", v:" areas can now "},
+      {t:"blank", word:"consult", hint:[0,1,2], def:"상담하다"},
+      {t:"text", v:" with "},
+      {t:"blank", word:"specialists", hint:[0,1,2,3], def:"전문의들"},
+      {t:"text", v:" without traveling long distances, and digital "},
+      {t:"blank", word:"monitoring", hint:[0,1,2,3], def:"모니터링"},
+      {t:"text", v:" tools "},
+      {t:"blank", word:"enable", hint:[0,1], def:"가능하게 하다"},
+      {t:"text", v:" doctors to "},
+      {t:"blank", word:"track", hint:[0,1,2], def:"추적하다"},
+      {t:"text", v:" patients' health between appointments. However, "},
+      {t:"blank", word:"ensuring", hint:[0,1,2], def:"보장하는"},
+      {t:"text", v:" that telemedicine reaches "},
+      {t:"blank", word:"underserved", hint:[0,1,2,3], def:"서비스가 부족한"},
+      {t:"text", v:" communities requires "},
+      {t:"blank", word:"investment", hint:[0,1,2,3], def:"투자"},
+      {t:"text", v:" in digital "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:". Telemedicine has the potential to transform healthcare delivery, but realizing its full benefits will depend on closing existing gaps in digital access and ensuring robust patient data protection."},
+    ]
+  },
+
+  // ── Passage 78: Electronic Waste ─────────────────────────────────────────
+  {
+    title: "Electronic Waste",
+    passage: [
+      {t:"text", v:"Electronic waste — discarded phones, computers, and other devices — is the fastest-growing waste stream in the world, creating serious environmental and health challenges. Many "},
+      {t:"blank", word:"devices", hint:[0,1,2], def:"기기들"},
+      {t:"text", v:" contain "},
+      {t:"blank", word:"toxic", hint:[0,1,2], def:"독성의"},
+      {t:"text", v:" materials such as lead and mercury that can "},
+      {t:"blank", word:"contaminate", hint:[0,1,2,3], def:"오염시키다"},
+      {t:"text", v:" soil and water when "},
+      {t:"blank", word:"disposed", hint:[0,1,2], def:"처리된"},
+      {t:"text", v:" of improperly. Governments are implementing "},
+      {t:"blank", word:"regulations", hint:[0,1,2,3], def:"규정들"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"require", hint:[0,1,2], def:"요구하다"},
+      {t:"text", v:" manufacturers to "},
+      {t:"blank", word:"take", hint:[0,1,2], def:"책임지다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"responsibility", hint:[0,1,2,3], def:"책임"},
+      {t:"text", v:" for the "},
+      {t:"blank", word:"recycling", hint:[0,1,2,3], def:"재활용"},
+      {t:"text", v:" of their products. Addressing the e-waste crisis requires both stronger regulations and a shift toward a circular economy in which products are designed to be repaired, reused, and recycled rather than discarded."},
+    ]
+  },
+
+  // ── Passage 79: Public Transportation ────────────────────────────────────
+  {
+    title: "Public Transportation",
+    passage: [
+      {t:"text", v:"Efficient public transportation systems are essential for reducing traffic congestion, lowering carbon emissions, and improving quality of life in cities. Research "},
+      {t:"blank", word:"demonstrates", hint:[0,1,2,3], def:"보여준다"},
+      {t:"text", v:" that cities with well-funded public transit networks have lower rates of air "},
+      {t:"blank", word:"pollution", hint:[0,1,2,3], def:"오염"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"significantly", hint:[0,1,2,3], def:"상당히"},
+      {t:"text", v:" better "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근"},
+      {t:"text", v:" to jobs and services for "},
+      {t:"blank", word:"low-income", hint:[0,1,2], def:"저소득"},
+      {t:"text", v:" residents. However, "},
+      {t:"blank", word:"maintaining", hint:[0,1,2,3], def:"유지하는"},
+      {t:"text", v:" and expanding transit "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:" requires "},
+      {t:"blank", word:"sustained", hint:[0,1,2], def:"지속적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"public", hint:[0,1,2], def:"공공"},
+      {t:"text", v:" "},
+      {t:"blank", word:"investment", hint:[0,1,2,3], def:"투자"},
+      {t:"text", v:". Choosing to invest in public transportation is ultimately a decision about what kind of cities we want to build — ones that are inclusive, sustainable, and accessible to everyone."},
+    ]
+  },
+
+  // ── Passage 80: Scientific Peer Review ───────────────────────────────────
+  {
+    title: "Scientific Peer Review",
+    passage: [
+      {t:"text", v:"Peer review is the process by which scientific research is evaluated by independent experts before publication, serving as one of the foundations of scientific credibility. This process helps to "},
+      {t:"blank", word:"identify", hint:[0,1,2], def:"파악하다"},
+      {t:"text", v:" errors and "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that published findings meet "},
+      {t:"blank", word:"accepted", hint:[0,1,2], def:"수용된"},
+      {t:"text", v:" "},
+      {t:"blank", word:"standards", hint:[0,1,2,3], def:"기준들"},
+      {t:"text", v:" of "},
+      {t:"blank", word:"methodology", hint:[0,1,2,3], def:"방법론"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"evidence", hint:[0,1,2], def:"증거"},
+      {t:"text", v:". Critics, however, point out that the peer review system has "},
+      {t:"blank", word:"limitations", hint:[0,1,2,3], def:"한계들"},
+      {t:"text", v:", including reviewer "},
+      {t:"blank", word:"bias", hint:[0,1], def:"편견"},
+      {t:"text", v:" and the "},
+      {t:"blank", word:"inability", hint:[0,1,2,3], def:"무능"},
+      {t:"text", v:" to detect "},
+      {t:"blank", word:"fraud", hint:[0,1,2], def:"사기"},
+      {t:"text", v:". Despite its limitations, peer review remains the most reliable system available for maintaining the quality and integrity of scientific knowledge across all fields of inquiry."},
+    ]
+  },
+
+  // ── Passage 81: Social Media and Elections ────────────────────────────────
+  {
+    title: "Social Media and Elections",
+    passage: [
+      {t:"text", v:"Social media platforms have fundamentally changed how political campaigns communicate with voters, raising important questions about the integrity of democratic processes. Researchers have "},
+      {t:"blank", word:"documented", hint:[0,1,2,3], def:"기록했다"},
+      {t:"text", v:" how "},
+      {t:"blank", word:"targeted", hint:[0,1,2,3], def:"표적화된"},
+      {t:"text", v:" advertising and "},
+      {t:"blank", word:"algorithmic", hint:[0,1,2,3], def:"알고리즘적인"},
+      {t:"text", v:" content "},
+      {t:"blank", word:"amplification", hint:[0,1,2,3], def:"증폭"},
+      {t:"text", v:" can "},
+      {t:"blank", word:"expose", hint:[0,1,2], def:"노출시키다"},
+      {t:"text", v:" voters to "},
+      {t:"blank", word:"misleading", hint:[0,1,2,3], def:"오해를 부르는"},
+      {t:"text", v:" information at "},
+      {t:"blank", word:"scale", hint:[0,1,2], def:"규모로"},
+      {t:"text", v:". Governments are exploring ways to "},
+      {t:"blank", word:"regulate", hint:[0,1,2], def:"규제하다"},
+      {t:"text", v:" political advertising and "},
+      {t:"blank", word:"require", hint:[0,1,2], def:"요구하다"},
+      {t:"text", v:" platforms to be more "},
+      {t:"blank", word:"transparent", hint:[0,1,2,3], def:"투명한"},
+      {t:"text", v:". Protecting the integrity of elections in the digital age requires urgent cooperation between governments, platforms, and civil society to establish rules that are both effective and consistent with free speech principles."},
+    ]
+  },
+
+  // ── Passage 82: Energy Storage Technology ────────────────────────────────
+  {
+    title: "Energy Storage Technology",
+    passage: [
+      {t:"text", v:"One of the greatest technical challenges in the transition to renewable energy is the need for large-scale energy storage systems. Solar and wind power generate electricity "},
+      {t:"blank", word:"intermittently", hint:[0,1,2,3], def:"간헐적으로"},
+      {t:"text", v:", so "},
+      {t:"blank", word:"reliable", hint:[0,1,2], def:"안정적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"storage", hint:[0,1,2], def:"저장"},
+      {t:"text", v:" solutions are needed to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" a "},
+      {t:"blank", word:"consistent", hint:[0,1,2,3], def:"일관된"},
+      {t:"text", v:" "},
+      {t:"blank", word:"supply", hint:[0,1,2], def:"공급"},
+      {t:"text", v:" of power. Researchers are making "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" advances in battery technology, and governments are "},
+      {t:"blank", word:"investing", hint:[0,1,2,3], def:"투자하고 있다"},
+      {t:"text", v:" in grid-scale storage "},
+      {t:"blank", word:"projects", hint:[0,1,2,3], def:"프로젝트들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"support", hint:[0,1,2], def:"지원하다"},
+      {t:"text", v:" the energy "},
+      {t:"blank", word:"transition", hint:[0,1,2,3], def:"전환"},
+      {t:"text", v:". Breakthroughs in energy storage will be among the most important technological achievements of this century, enabling a clean energy system that can reliably power modern economies."},
+    ]
+  },
+
+  // ── Passage 83: Microfinance ──────────────────────────────────────────────
+  {
+    title: "Microfinance and Poverty Reduction",
+    passage: [
+      {t:"text", v:"Microfinance programs provide small loans and financial services to individuals who lack access to traditional banking, with the aim of helping them build businesses and escape poverty. Proponents argue that microfinance "},
+      {t:"blank", word:"empowers", hint:[0,1,2,3], def:"권한을 준다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"entrepreneurs", hint:[0,1,2,3], def:"기업가들"},
+      {t:"text", v:" in developing countries by giving them "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"capital", hint:[0,1,2], def:"자본"},
+      {t:"text", v:" that was previously "},
+      {t:"blank", word:"unavailable", hint:[0,1,2,3], def:"이용 불가능한"},
+      {t:"text", v:" to them. However, critics point out that high interest rates and "},
+      {t:"blank", word:"aggressive", hint:[0,1,2,3], def:"공격적인"},
+      {t:"text", v:" loan "},
+      {t:"blank", word:"collection", hint:[0,1,2,3], def:"수금"},
+      {t:"text", v:" practices can "},
+      {t:"blank", word:"trap", hint:[0,1,2], def:"가두다"},
+      {t:"text", v:" borrowers in cycles of "},
+      {t:"blank", word:"debt", hint:[0,1], def:"부채"},
+      {t:"text", v:". The evidence on microfinance is mixed, suggesting that its benefits are greatest when combined with financial education and other support services rather than offered in isolation."},
+    ]
+  },
+
+  // ── Passage 84: Pandemic Preparedness ────────────────────────────────────
+  {
+    title: "Pandemic Preparedness",
+    passage: [
+      {t:"text", v:"The COVID-19 pandemic revealed significant gaps in the world's ability to detect, respond to, and contain rapidly spreading infectious diseases. Health experts "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that governments must "},
+      {t:"blank", word:"invest", hint:[0,1,2], def:"투자하다"},
+      {t:"text", v:" in stronger public health "},
+      {t:"blank", word:"infrastructure", hint:[0,1,2,3], def:"인프라"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"surveillance", hint:[0,1,2,3], def:"감시"},
+      {t:"text", v:" systems to "},
+      {t:"blank", word:"detect", hint:[0,1,2], def:"탐지하다"},
+      {t:"text", v:" future outbreaks early. International cooperation is "},
+      {t:"blank", word:"essential", hint:[0,1,2], def:"필수적인"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that vaccines and medical supplies can be "},
+      {t:"blank", word:"rapidly", hint:[0,1,2], def:"신속히"},
+      {t:"text", v:" "},
+      {t:"blank", word:"distributed", hint:[0,1,2,3], def:"배포된"},
+      {t:"text", v:" to all countries when needed. Investing in pandemic preparedness today is far less costly than the devastating human and economic toll of an unprepared response to the next global health emergency."},
+    ]
+  },
+
+  // ── Passage 85: Fair Trade ────────────────────────────────────────────────
+  {
+    title: "Fair Trade",
+    passage: [
+      {t:"text", v:"Fair trade is a movement that aims to ensure that producers in developing countries receive fair prices for their goods and work in safe, dignified conditions. Proponents argue that fair trade "},
+      {t:"blank", word:"certification", hint:[0,1,2,3], def:"인증"},
+      {t:"text", v:" "},
+      {t:"blank", word:"enables", hint:[0,1,2], def:"가능하게 한다"},
+      {t:"text", v:" consumers to make "},
+      {t:"blank", word:"informed", hint:[0,1,2], def:"정보에 입각한"},
+      {t:"text", v:" purchasing decisions and "},
+      {t:"blank", word:"supports", hint:[0,1,2,3], def:"지원하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"sustainable", hint:[0,1,2,3], def:"지속 가능한"},
+      {t:"text", v:" livelihoods for "},
+      {t:"blank", word:"vulnerable", hint:[0,1,2,3], def:"취약한"},
+      {t:"text", v:" farming communities. Critics, however, question whether the "},
+      {t:"blank", word:"premium", hint:[0,1,2], def:"프리미엄"},
+      {t:"text", v:" paid by consumers "},
+      {t:"blank", word:"effectively", hint:[0,1,2,3], def:"효과적으로"},
+      {t:"text", v:" reaches small-scale "},
+      {t:"blank", word:"producers", hint:[0,1,2,3], def:"생산자들"},
+      {t:"text", v:". Whether fair trade can achieve its goals at scale remains an open question, but it represents an important attempt to make global trade more equitable and transparent."},
+    ]
+  },
+
+  // ── Passage 86: Language Extinction ──────────────────────────────────────
+  {
+    title: "Language Extinction",
+    passage: [
+      {t:"text", v:"Linguists estimate that of the approximately seven thousand languages spoken in the world today, roughly half could disappear within the next hundred years as communities shift to dominant global languages. The loss of a language means the permanent "},
+      {t:"blank", word:"disappearance", hint:[0,1,2,3], def:"소멸"},
+      {t:"text", v:" of unique "},
+      {t:"blank", word:"cultural", hint:[0,1,2,3], def:"문화적인"},
+      {t:"text", v:" knowledge and ways of "},
+      {t:"blank", word:"understanding", hint:[0,1,2,3], def:"이해하는"},
+      {t:"text", v:" the world. Efforts to "},
+      {t:"blank", word:"document", hint:[0,1,2], def:"기록하다"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"revitalize", hint:[0,1,2,3], def:"부활시키다"},
+      {t:"text", v:" endangered languages are being "},
+      {t:"blank", word:"supported", hint:[0,1,2,3], def:"지원된"},
+      {t:"text", v:" by governments and "},
+      {t:"blank", word:"communities", hint:[0,1,2,3], def:"공동체들"},
+      {t:"text", v:" around the world, often using digital "},
+      {t:"blank", word:"technology", hint:[0,1,2,3], def:"기술"},
+      {t:"text", v:" to create new learning "},
+      {t:"blank", word:"resources", hint:[0,1,2], def:"자원들"},
+      {t:"text", v:". Preserving linguistic diversity is not just a matter of sentiment — it is a recognition that every language encodes irreplaceable knowledge about the natural world, human history, and the full range of human experience."},
+    ]
+  },
+
+  // ── Passage 87: Entrepreneurship and Innovation ───────────────────────────
+  {
+    title: "Entrepreneurship and Innovation",
+    passage: [
+      {t:"text", v:"Entrepreneurship drives economic growth by bringing new products, services, and business models to market, creating jobs and generating wealth across societies. Governments recognize the importance of fostering an "},
+      {t:"blank", word:"environment", hint:[0,1,2,3], def:"환경"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"supports", hint:[0,1,2,3], def:"지원하는"},
+      {t:"text", v:" innovation by offering "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"funding", hint:[0,1,2], def:"자금"},
+      {t:"text", v:", reducing "},
+      {t:"blank", word:"regulatory", hint:[0,1,2,3], def:"규제적인"},
+      {t:"text", v:" "},
+      {t:"blank", word:"barriers", hint:[0,1,2], def:"장벽들"},
+      {t:"text", v:", and investing in education and "},
+      {t:"blank", word:"research", hint:[0,1,2], def:"연구"},
+      {t:"text", v:". However, researchers "},
+      {t:"blank", word:"emphasize", hint:[0,1,2], def:"강조하다"},
+      {t:"text", v:" that entrepreneurship must be "},
+      {t:"blank", word:"inclusive", hint:[0,1,2,3], def:"포용적인"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" that opportunities are available to all "},
+      {t:"blank", word:"segments", hint:[0,1,2,3], def:"계층들"},
+      {t:"text", v:" of society. Policies that promote broad-based entrepreneurship — not just among those who are already privileged — are among the most powerful tools available for building more equitable and dynamic economies."},
+    ]
+  },
+
+  // ── Passage 88: Sleep and Cognitive Performance ───────────────────────────
+  {
+    title: "Sleep and Cognitive Performance",
+    passage: [
+      {t:"text", v:"Sleep is one of the most fundamental biological needs, yet modern lifestyles, work demands, and digital technology are causing millions of people to get less sleep than they need. Research "},
+      {t:"blank", word:"demonstrates", hint:[0,1,2,3], def:"보여준다"},
+      {t:"text", v:" that insufficient sleep "},
+      {t:"blank", word:"impairs", hint:[0,1,2], def:"손상시킨다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"cognitive", hint:[0,1,2], def:"인지적인"},
+      {t:"text", v:" function, "},
+      {t:"blank", word:"reduces", hint:[0,1,2], def:"줄인다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"productivity", hint:[0,1,2,3], def:"생산성"},
+      {t:"text", v:", and "},
+      {t:"blank", word:"increases", hint:[0,1,2,3], def:"증가시킨다"},
+      {t:"text", v:" the risk of serious health conditions including heart disease and depression. Schools and workplaces are beginning to "},
+      {t:"blank", word:"recognize", hint:[0,1,2], def:"인식하다"},
+      {t:"text", v:" the importance of sleep and to "},
+      {t:"blank", word:"adjust", hint:[0,1,2], def:"조정하다"},
+      {t:"text", v:" their schedules "},
+      {t:"blank", word:"accordingly", hint:[0,1,2,3], def:"그에 맞게"},
+      {t:"text", v:". Understanding sleep as a public health priority rather than a personal luxury is an important step toward building healthier, more productive, and more resilient societies."},
+    ]
+  },
+
+  // ── Passage 89: Sustainable Fashion ──────────────────────────────────────
+  {
+    title: "Sustainable Fashion",
+    passage: [
+      {t:"text", v:"The fashion industry is one of the world's most polluting sectors, consuming enormous amounts of water, generating significant textile waste, and relying on supply chains that often exploit workers. Researchers "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that the industry must "},
+      {t:"blank", word:"transition", hint:[0,1,2,3], def:"전환하다"},
+      {t:"text", v:" to more "},
+      {t:"blank", word:"sustainable", hint:[0,1,2,3], def:"지속 가능한"},
+      {t:"text", v:" practices, including using "},
+      {t:"blank", word:"recycled", hint:[0,1,2], def:"재활용된"},
+      {t:"text", v:" materials, reducing "},
+      {t:"blank", word:"overproduction", hint:[0,1,2,3], def:"과잉생산"},
+      {t:"text", v:", and "},
+      {t:"blank", word:"ensuring", hint:[0,1,2], def:"보장하면서"},
+      {t:"text", v:" fair wages for garment workers. Some brands have begun to "},
+      {t:"blank", word:"adopt", hint:[0,1,2], def:"채택하다"},
+      {t:"text", v:" circular business "},
+      {t:"blank", word:"models", hint:[0,1,2], def:"모델들"},
+      {t:"text", v:" that encourage "},
+      {t:"blank", word:"consumers", hint:[0,1,2,3], def:"소비자들"},
+      {t:"text", v:" to repair and "},
+      {t:"blank", word:"recycle", hint:[0,1,2], def:"재활용하다"},
+      {t:"text", v:" clothing. Transforming fashion into a truly sustainable industry will require fundamental changes in how clothes are designed, produced, sold, and disposed of throughout their entire lifecycle."},
+    ]
+  },
+
+  // ── Passage 90: Global Health Equity ─────────────────────────────────────
+  {
+    title: "Global Health Equity",
+    passage: [
+      {t:"text", v:"Health equity — the principle that all people should have the opportunity to achieve their full health potential regardless of social or economic status — remains an elusive goal in both rich and poor countries. Researchers "},
+      {t:"blank", word:"document", hint:[0,1,2], def:"기록한다"},
+      {t:"text", v:" large "},
+      {t:"blank", word:"disparities", hint:[0,1,2,3], def:"격차들"},
+      {t:"text", v:" in health "},
+      {t:"blank", word:"outcomes", hint:[0,1,2], def:"결과들"},
+      {t:"text", v:" linked to "},
+      {t:"blank", word:"income", hint:[0,1,2], def:"소득"},
+      {t:"text", v:", race, and "},
+      {t:"blank", word:"geography", hint:[0,1,2,3], def:"지역"},
+      {t:"text", v:". Addressing these inequalities requires not only improved healthcare "},
+      {t:"blank", word:"delivery", hint:[0,1,2], def:"제공"},
+      {t:"text", v:" but also "},
+      {t:"blank", word:"policies", hint:[0,1,2], def:"정책들"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"tackle", hint:[0,1,2], def:"다루다"},
+      {t:"text", v:" the underlying social "},
+      {t:"blank", word:"determinants", hint:[0,1,2,3], def:"결정요인들"},
+      {t:"text", v:" of health, such as poverty, housing, and education. Achieving global health equity is not just a medical challenge — it is fundamentally a question of justice and of what kind of world we choose to build together."},
+    ]
+  },
+
+  // ── Passage 91: Nuclear Disarmament ──────────────────────────────────────
+  {
+    title: "Nuclear Disarmament",
+    passage: [
+      {t:"text", v:"Nuclear weapons remain one of the greatest threats to human civilization, with thousands of warheads still deployed by several nations around the world. International "},
+      {t:"blank", word:"treaties", hint:[0,1,2,3], def:"조약들"},
+      {t:"text", v:" have played an important role in "},
+      {t:"blank", word:"limiting", hint:[0,1,2], def:"제한하는"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"proliferation", hint:[0,1,2,3], def:"확산"},
+      {t:"text", v:" of these weapons, but "},
+      {t:"blank", word:"progress", hint:[0,1,2,3], def:"진전"},
+      {t:"text", v:" toward complete "},
+      {t:"blank", word:"disarmament", hint:[0,1,2,3], def:"군축"},
+      {t:"text", v:" has stalled in recent years as geopolitical "},
+      {t:"blank", word:"tensions", hint:[0,1,2,3], def:"긴장들"},
+      {t:"text", v:" have risen. Advocates argue that all nuclear-armed states must "},
+      {t:"blank", word:"commit", hint:[0,1,2], def:"헌신하다"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"verified", hint:[0,1,2], def:"검증된"},
+      {t:"text", v:" reductions in their "},
+      {t:"blank", word:"arsenals", hint:[0,1,2], def:"무기고"},
+      {t:"text", v:". The goal of a world free of nuclear weapons may be difficult to achieve, but the alternative — a world where nuclear weapons continue to proliferate — poses unacceptable risks to all of humanity."},
+    ]
+  },
+
+  // ── Passage 92: Organ Donation ────────────────────────────────────────────
+  {
+    title: "Organ Donation",
+    passage: [
+      {t:"text", v:"Organ donation saves thousands of lives every year, yet in many countries the gap between the number of people waiting for transplants and the number of available organs remains enormous. Some governments have "},
+      {t:"blank", word:"adopted", hint:[0,1,2], def:"채택했다"},
+      {t:"text", v:" an opt-out system, in which all citizens are "},
+      {t:"blank", word:"presumed", hint:[0,1,2], def:"간주된"},
+      {t:"text", v:" to be "},
+      {t:"blank", word:"donors", hint:[0,1,2], def:"기증자들"},
+      {t:"text", v:" unless they "},
+      {t:"blank", word:"actively", hint:[0,1,2,3], def:"적극적으로"},
+      {t:"text", v:" choose to "},
+      {t:"blank", word:"opt", hint:[0,1], def:"선택하다"},
+      {t:"text", v:" out, which has been shown to "},
+      {t:"blank", word:"increase", hint:[0,1,2,3], def:"늘리다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"donation", hint:[0,1,2], def:"기증"},
+      {t:"text", v:" rates. Others argue that individual "},
+      {t:"blank", word:"autonomy", hint:[0,1,2,3], def:"자율성"},
+      {t:"text", v:" must be "},
+      {t:"blank", word:"respected", hint:[0,1,2,3], def:"존중된"},
+      {t:"text", v:" and that informed "},
+      {t:"blank", word:"consent", hint:[0,1,2], def:"동의"},
+      {t:"text", v:" should always be "},
+      {t:"blank", word:"required", hint:[0,1,2], def:"요구된다"},
+      {t:"text", v:". Regardless of the policy approach, raising public awareness of the life-saving potential of organ donation is essential to increasing the number of people willing to make this generous gift."},
+    ]
+  },
+
+  // ── Passage 93: Homelessness ──────────────────────────────────────────────
+  {
+    title: "Addressing Homelessness",
+    passage: [
+      {t:"text", v:"Homelessness affects millions of people in countries at all income levels, and its causes are complex, involving poverty, mental illness, addiction, and the absence of affordable housing. Research "},
+      {t:"blank", word:"suggests", hint:[0,1,2,3], def:"시사한다"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"approaches", hint:[0,1,2], def:"접근법들"},
+      {t:"text", v:" that prioritize providing "},
+      {t:"blank", word:"stable", hint:[0,1,2], def:"안정적인"},
+      {t:"text", v:" housing first and then "},
+      {t:"blank", word:"addressing", hint:[0,1,2,3], def:"해결하는"},
+      {t:"text", v:" other needs are more "},
+      {t:"blank", word:"effective", hint:[0,1,2,3], def:"효과적인"},
+      {t:"text", v:" than "},
+      {t:"blank", word:"requiring", hint:[0,1,2,3], def:"요구하는"},
+      {t:"text", v:" people to "},
+      {t:"blank", word:"overcome", hint:[0,1,2], def:"극복하다"},
+      {t:"text", v:" addiction or mental illness before receiving "},
+      {t:"blank", word:"support", hint:[0,1,2], def:"지원"},
+      {t:"text", v:". Reducing homelessness also "},
+      {t:"blank", word:"requires", hint:[0,1,2], def:"필요로 한다"},
+      {t:"text", v:" policies that make housing more "},
+      {t:"blank", word:"affordable", hint:[0,1,2,3], def:"감당할 수 있는"},
+      {t:"text", v:". Ending homelessness is a solvable problem, but only if societies are willing to make the necessary investments and treat those experiencing it with dignity and respect."},
+    ]
+  },
+
+  // ── Passage 94: Volunteer Tourism ────────────────────────────────────────
+  {
+    title: "Volunteer Tourism",
+    passage: [
+      {t:"text", v:"Volunteer tourism — the practice of traveling abroad to participate in community development or conservation projects — has grown dramatically in popularity, but its impact is increasingly questioned by researchers. Studies "},
+      {t:"blank", word:"suggest", hint:[0,1,2,3], def:"시사한다"},
+      {t:"text", v:" that many volunteer programs "},
+      {t:"blank", word:"prioritize", hint:[0,1,2,3], def:"우선시하다"},
+      {t:"text", v:" the "},
+      {t:"blank", word:"experience", hint:[0,1,2,3], def:"경험"},
+      {t:"text", v:" of the "},
+      {t:"blank", word:"volunteer", hint:[0,1,2,3], def:"자원봉사자"},
+      {t:"text", v:" over the "},
+      {t:"blank", word:"needs", hint:[0,1,2], def:"필요"},
+      {t:"text", v:" of host communities, and that unskilled "},
+      {t:"blank", word:"labor", hint:[0,1], def:"노동"},
+      {t:"text", v:" can sometimes "},
+      {t:"blank", word:"undermine", hint:[0,1,2,3], def:"약화시키다"},
+      {t:"text", v:" local "},
+      {t:"blank", word:"employment", hint:[0,1,2,3], def:"고용"},
+      {t:"text", v:". To be truly "},
+      {t:"blank", word:"beneficial", hint:[0,1,2,3], def:"유익한"},
+      {t:"text", v:", volunteer programs must be "},
+      {t:"blank", word:"designed", hint:[0,1,2], def:"설계된"},
+      {t:"text", v:" around community "},
+      {t:"blank", word:"priorities", hint:[0,1,2,3], def:"우선순위들"},
+      {t:"text", v:". The most effective form of international volunteering is one that builds genuine partnerships based on mutual respect, long-term commitment, and a clear understanding of what communities actually need."},
+    ]
+  },
+
+  // ── Passage 95: Charter Schools ──────────────────────────────────────────
+  {
+    title: "Charter Schools and Education Reform",
+    passage: [
+      {t:"text", v:"Charter schools are publicly funded educational institutions that operate with greater autonomy than traditional public schools, allowing them to experiment with different teaching approaches and curricula. Supporters "},
+      {t:"blank", word:"argue", hint:[0,1,2], def:"주장한다"},
+      {t:"text", v:" that charter schools "},
+      {t:"blank", word:"provide", hint:[0,1,2,3], def:"제공하다"},
+      {t:"text", v:" families with "},
+      {t:"blank", word:"valuable", hint:[0,1,2], def:"가치 있는"},
+      {t:"text", v:" "},
+      {t:"blank", word:"alternatives", hint:[0,1,2,3], def:"대안들"},
+      {t:"text", v:" and can "},
+      {t:"blank", word:"drive", hint:[0,1,2], def:"유도하다"},
+      {t:"text", v:" innovation across the "},
+      {t:"blank", word:"broader", hint:[0,1,2], def:"더 넓은"},
+      {t:"text", v:" education system. Critics, however, contend that charter schools can "},
+      {t:"blank", word:"divert", hint:[0,1,2], def:"전용하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"resources", hint:[0,1,2], def:"자원들"},
+      {t:"text", v:" from "},
+      {t:"blank", word:"traditional", hint:[0,1,2,3], def:"전통적인"},
+      {t:"text", v:" public schools and may "},
+      {t:"blank", word:"increase", hint:[0,1,2,3], def:"심화시키다"},
+      {t:"text", v:" educational "},
+      {t:"blank", word:"inequality", hint:[0,1,2,3], def:"불평등"},
+      {t:"text", v:". The charter school debate reflects a broader disagreement about how to improve education systems in ways that are both effective and equitable for all students."},
+    ]
+  },
+
+  // ── Passage 96: Dark Web and Cybercrime ──────────────────────────────────
+  {
+    title: "The Dark Web and Cybercrime",
+    passage: [
+      {t:"text", v:"The dark web — a part of the internet accessible only through specialized software — has become a marketplace for illegal goods and services, posing serious challenges for law enforcement around the world. Criminals use it to trade in "},
+      {t:"blank", word:"stolen", hint:[0,1,2], def:"도난된"},
+      {t:"text", v:" data, "},
+      {t:"blank", word:"illegal", hint:[0,1,2], def:"불법적인"},
+      {t:"text", v:" substances, and other "},
+      {t:"blank", word:"prohibited", hint:[0,1,2,3], def:"금지된"},
+      {t:"text", v:" items while "},
+      {t:"blank", word:"concealing", hint:[0,1,2,3], def:"숨기면서"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"identities", hint:[0,1,2,3], def:"신원들"},
+      {t:"text", v:" through encryption. Law enforcement agencies are developing new "},
+      {t:"blank", word:"capabilities", hint:[0,1,2,3], def:"역량들"},
+      {t:"text", v:" to "},
+      {t:"blank", word:"investigate", hint:[0,1,2,3], def:"수사하다"},
+      {t:"text", v:" dark web "},
+      {t:"blank", word:"activity", hint:[0,1,2,3], def:"활동"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"cooperate", hint:[0,1,2,3], def:"협력하다"},
+      {t:"text", v:" across "},
+      {t:"blank", word:"borders", hint:[0,1,2], def:"국경들"},
+      {t:"text", v:". The challenge of policing the dark web illustrates the broader difficulty of maintaining the rule of law in an increasingly complex and borderless digital environment."},
+    ]
+  },
+
+  // ── Passage 97: Museum Education ─────────────────────────────────────────
+  {
+    title: "Museums and Cultural Education",
+    passage: [
+      {t:"text", v:"Museums play a vital role in preserving cultural heritage and making it accessible to the public, serving as important centers of education and civic life. Researchers have "},
+      {t:"blank", word:"demonstrated", hint:[0,1,2,3], def:"입증했다"},
+      {t:"text", v:" that visits to museums can "},
+      {t:"blank", word:"enhance", hint:[0,1,2], def:"향상시키다"},
+      {t:"text", v:" critical thinking skills and foster greater "},
+      {t:"blank", word:"appreciation", hint:[0,1,2,3], def:"감상"},
+      {t:"text", v:" for "},
+      {t:"blank", word:"diverse", hint:[0,1,2], def:"다양한"},
+      {t:"text", v:" cultures among young people. Many museums are working to "},
+      {t:"blank", word:"expand", hint:[0,1,2], def:"확장하다"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"reach", hint:[0,1,2], def:"범위"},
+      {t:"text", v:" by offering digital "},
+      {t:"blank", word:"content", hint:[0,1,2], def:"콘텐츠"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"partnering", hint:[0,1,2,3], def:"협력하는"},
+      {t:"text", v:" with schools in "},
+      {t:"blank", word:"underserved", hint:[0,1,2,3], def:"소외된"},
+      {t:"text", v:" communities to "},
+      {t:"blank", word:"ensure", hint:[0,1], def:"보장하다"},
+      {t:"text", v:" broader "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근"},
+      {t:"text", v:". Making museums genuinely inclusive and accessible to all citizens — not just those with the means and leisure to visit — is essential to fulfilling their potential as institutions of public education."},
+    ]
+  },
+
+  // ── Passage 98: Arctic Resource Competition ────────────────────────────────
+  {
+    title: "Arctic Resource Competition",
+    passage: [
+      {t:"text", v:"As climate change causes Arctic ice to melt at an unprecedented rate, the region is becoming increasingly accessible, sparking growing competition among nations over its vast natural resources. The Arctic is believed to "},
+      {t:"blank", word:"contain", hint:[0,1,2], def:"포함하다"},
+      {t:"text", v:" significant "},
+      {t:"blank", word:"reserves", hint:[0,1,2], def:"매장량들"},
+      {t:"text", v:" of oil, gas, and "},
+      {t:"blank", word:"valuable", hint:[0,1,2], def:"가치 있는"},
+      {t:"text", v:" "},
+      {t:"blank", word:"minerals", hint:[0,1,2], def:"광물들"},
+      {t:"text", v:", and several countries are working to "},
+      {t:"blank", word:"establish", hint:[0,1,2], def:"수립하다"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"territorial", hint:[0,1,2,3], def:"영토의"},
+      {t:"text", v:" claims. Environmental scientists warn that industrial "},
+      {t:"blank", word:"development", hint:[0,1,2,3], def:"개발"},
+      {t:"text", v:" in the Arctic could "},
+      {t:"blank", word:"damage", hint:[0,1,2], def:"훼손하다"},
+      {t:"text", v:" "},
+      {t:"blank", word:"fragile", hint:[0,1,2], def:"취약한"},
+      {t:"text", v:" ecosystems and "},
+      {t:"blank", word:"accelerate", hint:[0,1,2,3], def:"가속화하다"},
+      {t:"text", v:" global warming. Managing the future of the Arctic wisely will require unprecedented levels of international cooperation, scientific transparency, and a willingness to prioritize long-term environmental health over short-term economic gain."},
+    ]
+  },
+
+  // ── Passage 99: Drug Policy Reform ───────────────────────────────────────
+  {
+    title: "Drug Policy Reform",
+    passage: [
+      {t:"text", v:"Drug policy is a highly contested area in which public health, criminal justice, and human rights considerations often come into conflict. Traditional approaches that "},
+      {t:"blank", word:"criminalize", hint:[0,1,2,3], def:"범죄화한다"},
+      {t:"text", v:" drug use have been criticized for "},
+      {t:"blank", word:"failing", hint:[0,1,2], def:"실패하는"},
+      {t:"text", v:" to reduce "},
+      {t:"blank", word:"consumption", hint:[0,1,2,3], def:"소비"},
+      {t:"text", v:" while imposing "},
+      {t:"blank", word:"significant", hint:[0,1,2,3], def:"상당한"},
+      {t:"text", v:" costs on "},
+      {t:"blank", word:"individuals", hint:[0,1,2,3], def:"개인들"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"communities", hint:[0,1,2,3], def:"공동체들"},
+      {t:"text", v:". Some countries have experimented with "},
+      {t:"blank", word:"decriminalization", hint:[0,1,2,3], def:"비범죄화"},
+      {t:"text", v:" or "},
+      {t:"blank", word:"regulated", hint:[0,1,2], def:"규제된"},
+      {t:"text", v:" legalization, "},
+      {t:"blank", word:"emphasizing", hint:[0,1,2,3], def:"강조하면서"},
+      {t:"text", v:" treatment and "},
+      {t:"blank", word:"harm", hint:[0,1,2], def:"피해"},
+      {t:"text", v:" "},
+      {t:"blank", word:"reduction", hint:[0,1,2,3], def:"감소"},
+      {t:"text", v:". How societies choose to address drug use will have profound consequences for public health, individual rights, and the communities most affected by both addiction and the harms of criminalization."},
+    ]
+  },
+
+  // ── Passage 100: Global Cooperation on Climate ────────────────────────────
+  {
+    title: "Global Cooperation on Climate Change",
+    passage: [
+      {t:"text", v:"Climate change is a global problem that no single country can solve alone, making international cooperation one of the most critical political challenges of the twenty-first century. Nations must "},
+      {t:"blank", word:"negotiate", hint:[0,1,2], def:"협상하다"},
+      {t:"text", v:" binding "},
+      {t:"blank", word:"agreements", hint:[0,1,2,3], def:"합의들"},
+      {t:"text", v:" that "},
+      {t:"blank", word:"require", hint:[0,1,2], def:"요구하다"},
+      {t:"text", v:" all countries to "},
+      {t:"blank", word:"reduce", hint:[0,1,2], def:"줄이다"},
+      {t:"text", v:" their "},
+      {t:"blank", word:"emissions", hint:[0,1,2,3], def:"배출량"},
+      {t:"text", v:" while also "},
+      {t:"blank", word:"ensuring", hint:[0,1,2], def:"보장하면서"},
+      {t:"text", v:" that developing nations have "},
+      {t:"blank", word:"access", hint:[0,1,2], def:"접근"},
+      {t:"text", v:" to the "},
+      {t:"blank", word:"technology", hint:[0,1,2,3], def:"기술"},
+      {t:"text", v:" and "},
+      {t:"blank", word:"financing", hint:[0,1,2,3], def:"자금 조달"},
+      {t:"text", v:" they need to "},
+      {t:"blank", word:"transition", hint:[0,1,2,3], def:"전환하다"},
+      {t:"text", v:" to cleaner economies. Researchers "},
+      {t:"blank", word:"emphasize", hint:[0,1,2], def:"강조한다"},
+      {t:"text", v:" that time is running short. The choices that world leaders make in the next decade will determine whether humanity succeeds in limiting the worst effects of climate change or whether those effects become truly catastrophic and irreversible."},
+    ]
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+const TOTAL_TIME = 3 * 60; // 180초
+let passages = [];          // 셔플된 PASSAGES 사본
+let cur = 0;                // 현재 문장 인덱스
+let timerSec = TOTAL_TIME;
+let timerID   = null;
+// userAnswers[passageIdx][blankIdx] = string
+let userAnswers = [];
+
+/* ═══════════════════════════════════════════════════════════════
+   UTIL
+═══════════════════════════════════════════════════════════════ */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = String(s % 60).padStart(2, '0');
+  return `${m}:${ss}`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUILD PASSAGE HTML
+═══════════════════════════════════════════════════════════════ */
+function buildPassageHTML(pIdx) {
+  const p = passages[pIdx];
+  let html = `<div class="passage-title">${p.title}</div>`;
+  html += `<div class="passage-card" id="passage-${pIdx}">`;
+
+  let blankIdx = 0;
+  for (const tok of p.passage) {
+    if (tok.t === 'text') {
+      // 텍스트는 그대로 span으로 감싸서 줄바꿈 허용
+      html += `<span>${escHtml(tok.v)}</span>`;
+    } else {
+      // blank: word-box로 감싸서 단어 내부 줄바꿈 방지
+      const word  = tok.word;
+      const hints = new Set(tok.hint);
+      const bi    = blankIdx;
+      const saved = (userAnswers[pIdx] && userAnswers[pIdx][bi]) || '';
+
+      html += `<span class="word-box" data-blank="${bi}">`;
+      for (let ci = 0; ci < word.length; ci++) {
+        if (hints.has(ci)) {
+          html += `<span class="lbox hint">${escHtml(word[ci])}</span>`;
+        } else {
+          const val = saved[ci - countHintsBefore(tok.hint, ci)] || '';
+          html += `<input class="lbox" type="text" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            data-pidx="${pIdx}" data-bidx="${bi}" data-cidx="${ci}"
+            value="${escHtml(val)}"
+            oninput="handleInput(this)"
+            onkeydown="handleKey(event,this)"
+          >`;
+        }
+      }
+      html += `</span>`;
+      blankIdx++;
+    }
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// hint 배열에서 ci 이전에 있는 hint 개수 (입력 박스 인덱스 계산용)
+function countHintsBefore(hintArr, ci) {
+  return hintArr.filter(h => h < ci).length;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUT HANDLING
+═══════════════════════════════════════════════════════════════ */
+function handleInput(el) {
+  const pIdx = +el.dataset.pidx;
+  const bIdx = +el.dataset.bidx;
+  const cIdx = +el.dataset.cidx;
+
+  // 대문자 → 소문자 (단어 첫자 제외 — 일단 소문자 통일)
+  el.value = el.value.toLowerCase();
+
+  // 저장
+  saveAnswer(pIdx, bIdx);
+
+  // 글자 입력 시 다음 칸으로 이동
+  if (el.value.length === 1) {
+    const inputs = [...document.querySelectorAll(`input[data-pidx="${pIdx}"]`)];
+    const idx = inputs.indexOf(el);
+    if (idx < inputs.length - 1) inputs[idx + 1].focus();
+  }
+}
+
+function handleKey(e, el) {
+  const pIdx = +el.dataset.pidx;
+  const inputs = [...document.querySelectorAll(`input[data-pidx="${pIdx}"]`)];
+  const idx = inputs.indexOf(el);
+
+  if (e.key === 'Backspace' && el.value === '' && idx > 0) {
+    inputs[idx - 1].focus();
+    e.preventDefault();
+  }
+  if (e.key === 'ArrowLeft'  && idx > 0)                inputs[idx - 1].focus();
+  if (e.key === 'ArrowRight' && idx < inputs.length - 1) inputs[idx + 1].focus();
+}
+
+function saveAnswer(pIdx, bIdx) {
+  const inputs = [...document.querySelectorAll(`input[data-pidx="${pIdx}"][data-bidx="${bIdx}"]`)];
+  userAnswers[pIdx][bIdx] = inputs.map(i => i.value).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION (이전/다음)
+═══════════════════════════════════════════════════════════════ */
+function renderPassage(idx) {
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = buildPassageHTML(idx);
+  document.getElementById('q-counter').textContent = `${idx + 1} / ${passages.length}`;
+
+  // 이전/다음 버튼 상태
+  document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : '';
+  const btnNext = document.getElementById('btn-next');
+  if (idx === passages.length - 1) {
+    btnNext.textContent = '제출 →';
+  } else {
+    btnNext.textContent = '다음 →';
+  }
+
+  // 첫 빈칸에 포커스
+  const firstInput = body.querySelector('input.lbox');
+  if (firstInput) setTimeout(() => firstInput.focus(), 100);
+}
+
+function goTo(dir) {
+  // 현재 답 저장
+  saveCurrentPassageAnswers();
+
+  if (dir === 1 && cur === passages.length - 1) {
+    // 마지막에서 다음 → 제출
+    endQuiz();
+    return;
+  }
+  cur = Math.max(0, Math.min(passages.length - 1, cur + dir));
+  renderPassage(cur);
+}
+
+function saveCurrentPassageAnswers() {
+  const pIdx = cur;
+  const p = passages[pIdx];
+  let bIdx = 0;
+  for (const tok of p.passage) {
+    if (tok.t === 'blank') {
+      saveAnswer(pIdx, bIdx);
+      bIdx++;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════════════ */
+function startTimer() {
+  timerSec = TOTAL_TIME;
+  updateTimerUI();
+  clearInterval(timerID);
+  timerID = setInterval(() => {
+    timerSec--;
+    updateTimerUI();
+    // 프로그레스바
+    const pct = (timerSec / TOTAL_TIME) * 100;
+    const bar = document.getElementById('q-bar');
+    bar.style.width = pct + '%';
+    bar.style.background = timerSec <= 30 ? 'var(--red)' : 'var(--orange)';
+    if (timerSec <= 30) {
+      document.getElementById('q-timer').classList.add('urgent');
+    }
+    if (timerSec <= 0) endQuiz();
+  }, 1000);
+}
+
+function updateTimerUI() {
+  document.getElementById('q-timer').textContent = fmtTime(timerSec);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   START / END
+═══════════════════════════════════════════════════════════════ */
+function startQuiz() {
+  passages = shuffle(PASSAGES).slice(0, 5);
+  cur = 0;
+  userAnswers = passages.map(p => {
+    const blanks = p.passage.filter(t => t.t === 'blank');
+    return Array(blanks.length).fill('');
+  });
+
+  show('quiz');
+  renderPassage(0);
+  startTimer();
+}
+
+function endQuiz() {
+  clearInterval(timerID);
+  saveCurrentPassageAnswers();
+  showReview();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEW
+═══════════════════════════════════════════════════════════════ */
+function showReview() {
+  show('review');
+
+  let total = 0, correct = 0;
+  const list = document.getElementById('rv-list');
+  list.innerHTML = '';
+
+  passages.forEach((p, pIdx) => {
+    let blankIdx = 0;
+    let allOk = true;
+    let sentenceHTML = '';
+
+    for (const tok of p.passage) {
+      if (tok.t === 'text') {
+        sentenceHTML += escHtml(tok.v);
+      } else {
+        const word    = tok.word;
+        const answer  = (userAnswers[pIdx][blankIdx] || '').toLowerCase().trim();
+        const isRight = answer === word.toLowerCase();
+        total++;
+        if (isRight) correct++;
+        else allOk = false;
+
+        const cls = isRight ? 'rv-word-correct' : 'rv-word-wrong';
+        const show_word = isRight ? word : `${answer || '?'}→${word}`;
+        const defText = (!isRight && tok.def) ? `<span class="rv-word-def">(${escHtml(tok.def)})</span>` : '';
+        sentenceHTML += `<span class="${cls}">[${escHtml(show_word)}]${defText}</span>`;
+        blankIdx++;
+      }
+    }
+
+    const item = document.createElement('div');
+    item.className = `rv-item ${allOk ? 'rv-ok' : 'rv-bad'}`;
+    item.innerHTML = `
+      <div class="rv-passage-title">${escHtml(p.title)}</div>
+      <div class="rv-sentence">${sentenceHTML}</div>
+    `;
+    list.appendChild(item);
+  });
+
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  document.getElementById('rv-pct').textContent   = pct + '%';
+  document.getElementById('rv-score').textContent = `${correct} / ${total} 정답`;
+  const emoji = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '😅';
+  document.getElementById('rv-emoji').textContent = emoji + ' 결과';
+}
+
+</script>
+</body>
+</html>
